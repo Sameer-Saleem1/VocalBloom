@@ -1,0 +1,25 @@
+.homepage-mainDiv {
+}
+
+.userDetails {
+  padding: 30px 50px;
+}
+
+.homepage-BtnDiv {
+  padding-top: 4.5em;
+}
+
+.playBtn {
+  border: 3px solid #2d2d2d;
+  padding: 5px 30px 5px 10px;
+  background-color: #90bae3;
+  border-radius: 12px;
+  color: #2d2d2d !important;
+  /* display: flex; */
+}
+
+.clickBtn {
+  font-size: 25px;
+  letter-spacing: 1px;
+  margin-top: 10px;
+}
