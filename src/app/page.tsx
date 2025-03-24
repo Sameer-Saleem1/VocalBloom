@@ -1,12 +1,8 @@
-import MyNavbar from "./Navbar";
-import Homepage from "./Homepage";
-import "bootstrap/dist/css/bootstrap.min.css";
-
+import PlayScreen from "./components/PlayScreen";
 export default function Home() {
   return (
-    <>
-      <MyNavbar />;
-      <Homepage />
-    </>
+    <div>
+      <PlayScreen />
+    </div>
   );
 }
