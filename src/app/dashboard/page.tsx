@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { auth, db } from "../firebase/config";
+import { auth } from "../firebase/config";
 import { signOut } from "firebase/auth";
 // import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
