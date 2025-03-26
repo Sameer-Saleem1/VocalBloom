@@ -1,8 +1,12 @@
 import PlayScreen from "./components/PlayScreen";
+import ProtectedRoute from "./components/protectedRoute";
+
 export default function Home() {
   return (
     <div>
-      <PlayScreen />
+      <ProtectedRoute>
+        <PlayScreen />
+      </ProtectedRoute>
     </div>
   );
 }

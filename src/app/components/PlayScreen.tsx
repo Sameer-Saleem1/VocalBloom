@@ -1,15 +1,46 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { auth, db } from "../firebase/config";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { ref, get } from "firebase/database";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
+interface User {
+  Name: string;
+  FatherName: string;
+  Email: string;
+  childAge: string;
+  UserID: string;
+}
+
 export default function PlayScreen() {
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        router.push("/login");
+      } else {
+        const userRef = ref(db, `Authentication/users/${currentUser.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setUser(snapshot.val());
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
-      <div className="absolute top-8 left-8 text-3xl font-bold">Hi, Brian</div>
+      <div className="absolute top-8 left-8 text-3xl font-bold">
+        Hi, {user ? user.Name : ""}
+      </div>
 
       {/* Score */}
       <div className="absolute top-8 right-8 flex items-center space-x-2 text-3xl font-bold">
