@@ -10,6 +10,7 @@ import {
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, get } from "firebase/database";
+import { useRouter, usePathname } from "next/navigation"; // Import router hooks
 
 interface User {
   uid: string;
@@ -29,6 +30,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -40,18 +43,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } else {
           setUser({ uid: currentUser.uid, email: currentUser.email ?? "" });
         }
+
+        // Redirect logic after login
+        if (pathname === "/login") {
+          router.push("/");
+        }
       } else {
         setUser(null);
+
+        // Redirect to login if not authenticated
+        if (pathname !== "/login") {
+          router.push("/login");
+        }
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router, pathname]);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {children}
+      {loading ? <p>Loading...</p> : children}
     </AuthContext.Provider>
   );
 };
