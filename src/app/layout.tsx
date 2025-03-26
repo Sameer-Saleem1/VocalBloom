@@ -24,15 +24,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
-      <html lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          suppressHydrationWarning
-        >
-          {children}
-        </body>
-      </html>
-    </AuthProvider>
+    <html lang="en">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        <AuthProvider>{children}</AuthProvider>
+      </body>
+    </html>
   );
 }
