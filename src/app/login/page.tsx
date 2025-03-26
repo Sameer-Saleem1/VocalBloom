@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { auth } from "../firebase/config";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
@@ -11,6 +11,16 @@ export default function Login() {
   });
 
   const router = useRouter();
+
+  useEffect(() => {
+    // Listen for auth state changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        router.push("/"); // Redirect if user is authenticated
+      }
+    });
+    return () => unsubscribe(); // Cleanup the listener
+  }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
