@@ -3,13 +3,6 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
-const levels = [
-  { title: "Beginner", image: "/images/sky.jpg", rating: 3.5 },
-  { title: "Intermediate", image: "/images/greenery.jpg", rating: 4 },
-  { title: "Proficient", image: "/images/cat.jpg", rating: 4.5 },
-  { title: "Expert", image: "/images/aeroplane.jpg", rating: 4 },
-];
-
 const Levels = () => {
   const router = useRouter();
 

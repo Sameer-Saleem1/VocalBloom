@@ -5,7 +5,7 @@ import MicIcon from "@mui/icons-material/Mic";
 import { grey } from "@mui/material/colors";
 
 export default function LearningCard() {
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen  bg-blue-100 relative">

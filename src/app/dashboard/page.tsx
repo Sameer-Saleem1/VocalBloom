@@ -1,8 +1,8 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { auth, db } from "../firebase/config";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import { ref, get } from "firebase/database";
+import { signOut } from "firebase/auth";
+// import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
 
 interface User {
@@ -20,6 +20,7 @@ export default function Dashboard() {
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/login");
+    setUser(null);
   };
 
   return (

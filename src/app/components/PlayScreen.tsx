@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
-import { onAuthStateChanged, signOut } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { ref, get } from "firebase/database";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
