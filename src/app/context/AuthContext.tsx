@@ -45,14 +45,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         // Redirect logic after login
-        if (pathname === "/login") {
+        if (pathname === "/login" || pathname === "/sign-up") {
           router.push("/");
         }
       } else {
         setUser(null);
 
         // Redirect to login if not authenticated
-        if (pathname !== "/login") {
+        if (pathname !== "/sign-up" && pathname !== "/login") {
           router.push("/login");
         }
       }
