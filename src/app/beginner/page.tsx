@@ -97,7 +97,7 @@ export default function LearningCard() {
     recognition.start();
   };
 
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <div className="p-4 text-center">

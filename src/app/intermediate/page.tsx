@@ -103,7 +103,7 @@ export default function Intermediate() {
         <h2 className="text-xl font-bold mb-4">Intermediate Level Phrases</h2>
         <ul className="space-y-2">
           {beginnerWords.map((word, index) => (
-            <li key={word.ID} className="p-2 border rounded bg-gray-100">
+            <li key={index} className="p-2 border rounded bg-gray-100">
               <p>
                 <strong>Phrases:</strong> {word.Content}
               </p>

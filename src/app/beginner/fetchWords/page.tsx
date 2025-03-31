@@ -24,7 +24,7 @@ export const fetchWords = async (): Promise<Word[]> => {
         (word) => word.Level === "Beginner Level"
       );
 
-      // ✅ Shuffle the words and limit to 100
+      // shuffle and limit the words to 100
       filteredWords = filteredWords
         .sort(() => Math.random() - 0.5)
         .slice(0, 100);
