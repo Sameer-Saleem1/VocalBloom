@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 // import useSpeechRecognition from "../SpeechRecognition/useSpeechRecognition";
 import { fetchWords } from "./fetchWords/page";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 // import MicIcon from "@mui/icons-material/Mic";
 // import { grey } from "@mui/material/colors";
 interface Word {
