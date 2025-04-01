@@ -2,7 +2,7 @@
 // import Image from "next/image";
 import { useEffect, useState } from "react";
 // import useSpeechRecognition from "../SpeechRecognition/useSpeechRecognition";
-import { fetchWords } from "./fetchWords/page";
+import { fetchWords } from "./fetchingWords/fetchWords";
 // import { useRouter } from "next/navigation";
 // import MicIcon from "@mui/icons-material/Mic";
 // import { grey } from "@mui/material/colors";
