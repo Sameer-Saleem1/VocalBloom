@@ -14,6 +14,23 @@ interface Word {
   Level: string;
   Type: string;
 }
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  start: () => void;
+  stop: () => void;
+}
 
 export default function LearningCard() {
   const [word, setWord] = useState<Word[]>([]);
@@ -63,7 +80,15 @@ export default function LearningCard() {
       return;
     }
 
-    const recognition = new (window as any).webkitSpeechRecognition();
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      alert("Speech recognition is not supported in your browser.");
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = false;
