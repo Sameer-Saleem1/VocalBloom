@@ -129,7 +129,7 @@ export default function Proficient() {
       utterance.lang = "en-US";
       utterance.rate = 0.75;
 
-      utterance.onboundary = (event: any) => {
+      utterance.onboundary = (event: SpeechSynthesisEvent) => {
         if (event.name === "word") {
           const charIndex = event.charIndex;
           const before = currentWord.Content.slice(0, charIndex);
