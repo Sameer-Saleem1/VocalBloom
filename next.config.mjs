@@ -6,6 +6,9 @@ import {
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    domains: ["drive.google.com"],
+  },
 };
 
 const nextConfigFunction = async (phase) => {

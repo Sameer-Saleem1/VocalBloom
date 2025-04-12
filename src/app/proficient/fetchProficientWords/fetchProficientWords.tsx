@@ -12,22 +12,20 @@ interface Word {
 
 export const fetchWords = async (): Promise<Word[]> => {
   try {
-    const wordsRef = ref(db, "dataset"); // ✅ Ensure correct DB path
+    const wordsRef = ref(db, "dataset");
     const snapshot = await get(wordsRef);
 
     if (snapshot.exists()) {
       const wordsData = snapshot.val();
       const wordsArray: Word[] = Object.values(wordsData);
 
-      // ✅ Filter only Beginner level words
       let filteredWords = wordsArray.filter(
-        (word) => word.Level === "Beginner"
+        (word) => word.Level === "Proficient"
       );
 
-      // shuffle and limit the words to 100
       filteredWords = filteredWords
         .sort(() => Math.random() - 0.5)
-        .slice(0, 100);
+        .slice(0, 50);
 
       return filteredWords;
     }

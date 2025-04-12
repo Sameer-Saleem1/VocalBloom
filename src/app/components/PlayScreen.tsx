@@ -1,9 +1,9 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
 import { onAuthStateChanged } from "firebase/auth";
 import { ref, get } from "firebase/database";
+import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -34,20 +34,29 @@ export default function PlayScreen() {
 
     return () => unsubscribe();
   }, []);
+  const handleLogout = async () => {
+    await signOut(auth);
+    router.push("/login");
+    setUser(null);
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
       <div className="absolute top-8 left-8 text-3xl font-bold">
-        Hi, {user ? user.Name : ""}
+        Hi, {user ? user.Name + " " + user.FatherName : ""}
       </div>
-
       {/* Score */}
-      <div className="absolute top-8 right-8 flex items-center space-x-2 text-3xl font-bold">
-        <span>15</span>
-        <span>⭐</span>
+      <div className="absolute top-8 right-8 flex items-center space-x-2 text-xl font-bold">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white p-2 rounded cursor-pointer"
+        >
+          Logout
+        </button>
+        {/* <span>15</span>
+        <span>⭐</span> */}
       </div>
-
       {/* Animated Buttons */}
       <div className="flex flex-col items-center space-y-4">
         <div className="flex items-center space-x-4">
@@ -88,7 +97,7 @@ export default function PlayScreen() {
           </motion.div>
         </div>
         <p className="text-lg text-gray-800">Click the button to start</p>
-      </div>
+      </div>{" "}
     </div>
   );
 }

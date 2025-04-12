@@ -1,15 +1,14 @@
 "use client";
-import Image from "next/image";
 import { useEffect, useState } from "react";
-import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
-import { fetchWords } from "./fetchIntermediateWords/fetchIntermediateWords";
-import sky from "../../../public/images/greenery.jpg";
+import aeroplane from "../../../public/images/aeroplane.jpg";
 import MicIcon from "@mui/icons-material/Mic";
+import { grey } from "@mui/material/colors";
+import { fetchWords } from "./fetchingExpertWords/fetchExpertWords";
+import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
-import { grey } from "@mui/material/colors";
 
 interface Word {
   Category: string;
@@ -86,13 +85,14 @@ interface SpeechRecognition extends EventTarget {
   stop: () => void;
 }
 
-export default function Intermediate() {
+export default function Expert() {
   const [word, setWord] = useState<Word[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [listening, setListening] = useState(false);
   const [feedback, setFeedback] = useState<string>("");
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
+  const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
 
   const router = useRouter();
 
@@ -102,7 +102,7 @@ export default function Intermediate() {
       if (words.length > 0) {
         setWord(words);
       }
-      const progress = await fetchProgress("intermediateLevel");
+      const progress = await fetchProgress("expertLevel");
       setCorrectPronunciations(progress.correctCount || 0);
 
       if (progress.correctWords && words.length > 0) {
@@ -120,22 +120,30 @@ export default function Intermediate() {
     loadWords();
   }, []);
 
-  const getDirectImageLink = (driveUrl?: string) => {
-    const match = driveUrl?.match(/\/d\/(.*?)\//);
-    return match
-      ? `https://drive.google.com/uc?export=view&id=${match[1]} `
-      : "";
-  };
-
   const currentWord = word[currentIndex] || null;
+  const wordsArray = currentWord?.Content.split(" ") || [];
 
   const speakWord = () => {
-    if (word && "speechSynthesis" in window) {
+    if (currentWord && "speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(currentWord.Content);
       utterance.lang = "en-US";
-      utterance.rate = 0.9;
+      utterance.rate = 0.75;
+
+      utterance.onboundary = (event: any) => {
+        if (event.name === "word") {
+          const charIndex = event.charIndex;
+          const before = currentWord.Content.slice(0, charIndex);
+          const currentWordIndex = before.trim().split(/\s+/).length - 1;
+          setHighlightIndex(currentWordIndex);
+        }
+      };
+
+      utterance.onend = () => {
+        setHighlightIndex(null);
+        setFeedback("Now, try pronouncing it!");
+      };
+
       speechSynthesis.speak(utterance);
-      setFeedback("Now, try pronouncing it!");
     } else {
       alert("Speech synthesis is not supported in your browser.");
     }
@@ -157,12 +165,15 @@ export default function Intermediate() {
 
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
-    recognition.continuous = false;
+    recognition.continuous = false; // Disable continuous listening
     recognition.interimResults = false;
+
+    let timeout: NodeJS.Timeout;
 
     recognition.onstart = () => setListening(true);
     recognition.onend = () => setListening(false);
 
+    // Use a timeout to detect a pause in speech (after a short delay, it will process the speech)
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
       const correctWord = currentWord?.Content.trim().toLowerCase() || "";
@@ -173,13 +184,14 @@ export default function Intermediate() {
 
       console.log("Similarity:", similarity);
 
-      if (similarity >= 0.7) {
+      // Process result after a pause or when speech is finished
+      if (similarity >= 0.4) {
         setFeedback("✅ Great job! Moving to the next word...");
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
 
-        await updateProgress("intermediateLevel", correctWord);
+        await updateProgress("expertLevel", correctWord);
 
         setTimeout(() => {
           setFeedback("");
@@ -187,10 +199,15 @@ export default function Intermediate() {
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
           );
-        }, 3000);
+        }, 5000);
       } else {
         setFeedback(`❌ Oops! You said "${userSpeech}". Try again.`);
       }
+
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        recognition.stop();
+      }, 2000);
     };
 
     recognition.start();
@@ -204,10 +221,10 @@ export default function Intermediate() {
         <div
           className="flex flex-col min-h-screen  bg-blue-100 relative"
           style={{
-            backgroundImage: `url(${sky.src})`,
-            // backgroundSize: "cover",
+            backgroundImage: `url(${aeroplane.src})`,
+            backgroundSize: "cover",
             backgroundPosition: "center",
-            // backgroundRepeat: "no-repeat",
+            backgroundRepeat: "no-repeat",
           }}
         >
           <div className="flex justify-between">
@@ -226,13 +243,13 @@ export default function Intermediate() {
           </div>
           {/* Progress Bar */}
           <div className="items-center justify-center flex flex-col mt-10">
-            <p className="text-2xl bg-orange-300 px-5 rounded font-bold">
-              {progress}/50
+            <p className="text-2xl bg-orange-300 rounded font-bold px-5">
+              {progress}/10
             </p>
             <div className="w-2/4 bg-orange-300 h-3 rounded-full relative mb-10 mt-5">
               <div
                 className="h-3 bg-orange-500 rounded-full"
-                style={{ width: `${Math.min((progress / 50) * 100, 100)}%` }}
+                style={{ width: `${Math.min((progress / 10) * 100, 100)}%  ` }}
               ></div>
             </div>
 
@@ -240,22 +257,20 @@ export default function Intermediate() {
             <div className="bg-orange-100 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative  ">
               <div className="flex items-center justify-center gap-25">
                 {/* Word Display */}
-                <h1 className="text-5xl font-semibold text-orange-700">
-                  {currentWord.Content}
+                <h1 className="text-3xl font-semibold text-orange-700 flex flex-wrap justify-center">
+                  {wordsArray.map((word, index) => (
+                    <span
+                      key={index}
+                      className={`mx-1 px-1 rounded ${
+                        highlightIndex === index - 1
+                          ? "bg-orange-300 font-bold"
+                          : ""
+                      }`}
+                    >
+                      {word}
+                    </span>
+                  ))}
                 </h1>
-
-                {/* Image */}
-                {currentWord["Image "] ? (
-                  <img
-                    src={getDirectImageLink(currentWord["Image "])}
-                    alt={currentWord["Image "]}
-                    width={150}
-                    height={180}
-                    className="rounded-full fit shadow-lg ml-4"
-                  />
-                ) : (
-                  "not found"
-                )}
               </div>
 
               {/* Buttons */}
@@ -283,7 +298,7 @@ export default function Intermediate() {
           {feedback && <p className="mt-4 text-lg">{feedback}</p>}
         </div>
       ) : (
-        <p>Loading word...</p>
+        <p>Loading Paragraph...</p>
       )}
       {showAnimation && (
         <div className="absolute top-1/4 left-1/4 flex justify-center items-center  w-2/4 h-2/4 z-20">
