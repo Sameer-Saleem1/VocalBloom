@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import LoginBG from "../../../public/images/loginBG.svg";
 import { useState } from "react";
 import { auth, db } from "../firebase/config";
@@ -17,8 +16,6 @@ export default function Signup() {
   const [passwordStrength, setPasswordStrength] = useState<string>("");
   const [passwordMatch, setPasswordMatch] = useState<boolean>(true);
   const [showStrength, setShowStrength] = useState<boolean>(false);
-  console.log(showStrength);
-
   const [userData, setUserData] = useState({
     Name: "",
     FatherName: "",
@@ -113,6 +110,12 @@ export default function Signup() {
     setConfirmPassword(newConfirmPassword);
     setPasswordMatch(password === newConfirmPassword);
   };
+  console.log(
+    showStrength,
+    confirmPassword,
+    handlePasswordChange,
+    handleConfirmPasswordChange
+  );
 
   return (
     <div

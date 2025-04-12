@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect, useState } from "react";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";

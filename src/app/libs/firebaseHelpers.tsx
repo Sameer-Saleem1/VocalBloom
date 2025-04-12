@@ -1,5 +1,5 @@
 import { auth, db } from "../firebase/config";
-import { ref, update, get, set } from "firebase/database";
+import { ref, get, set } from "firebase/database";
 
 export const updateProgress = async (
   level:

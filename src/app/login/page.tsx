@@ -1,5 +1,4 @@
 "use client";
-import Image from "next/image";
 import LoginBG from "../../../public/images/loginBG.svg";
 import { useEffect, useState } from "react";
 import { auth } from "../firebase/config";
