@@ -248,10 +248,10 @@ export default function LearningCard() {
                 </h1>
 
                 {/* Image */}
-                {currentWord["Image "] ? (
+                {currentWord["Image"] ? (
                   <img
-                    src={getDirectImageLink(currentWord["Image "])}
-                    alt={currentWord["Image "]}
+                    src={getDirectImageLink(currentWord["Image"])}
+                    alt={currentWord["Image"]}
                     width={150}
                     height={180}
                     className="rounded-full fit shadow-lg ml-4"
