@@ -8,6 +8,7 @@ import { fetchWords } from "./fetchingWords/fetchWords";
 import MicIcon from "@mui/icons-material/Mic";
 import { grey } from "@mui/material/colors";
 import sky from "../../../public/images/sky.jpg";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
@@ -215,18 +216,12 @@ export default function LearningCard() {
             backgroundRepeat: "no-repeat",
           }}
         >
-          <div className="flex justify-between">
+          <div className="flex justify-end">
             <button
-              className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
-              onClick={() => router.back()}
-            >
-              End Session
-            </button>{" "}
-            <button
-              className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
+              className="cursor-pointer font-bold text-xl bg-orange-300 rounded px-3 py-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
               onClick={() => router.push("./")}
             >
-              Home
+              <ExitToAppIcon fontSize="medium" />
             </button>
           </div>
           {/* Progress Bar */}
@@ -294,7 +289,7 @@ export default function LearningCard() {
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       similarityScore >= 0.7
-                        ? "bg-orange-300"
+                        ? "bg-green-500"
                         : similarityScore >= 0.5
                         ? "bg-yellow-400"
                         : "bg-red-500"
