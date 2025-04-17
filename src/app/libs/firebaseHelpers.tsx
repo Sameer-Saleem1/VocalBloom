@@ -1,5 +1,7 @@
+// ✅ Step 1: Modify firebaseHelpers.ts to include level unlocking logic
+
 import { auth, db } from "../firebase/config";
-import { ref, get, set } from "firebase/database";
+import { ref, get, set, update } from "firebase/database";
 
 export const updateProgress = async (
   level:
@@ -29,10 +31,40 @@ export const updateProgress = async (
     correctWords.push(newWord);
   }
 
+  const correctCount = correctWords.length;
+
   await set(progressRef, {
     correctWords,
-    correctCount: correctWords.length,
+    correctCount,
+    isUnlocked: true, // Always keep current level unlocked after progress
   });
+
+  // Unlock next level if threshold is reached
+  const thresholds: Record<string, number> = {
+    beginnerLevel: 100,
+    intermediateLevel: 50,
+    proficientLevel: 25,
+  };
+
+  const nextLevelMap: Record<
+    string,
+    "intermediateLevel" | "proficientLevel" | "expertLevel"
+  > = {
+    beginnerLevel: "intermediateLevel",
+    intermediateLevel: "proficientLevel",
+    proficientLevel: "expertLevel",
+  };
+
+  if (level in thresholds && correctCount >= thresholds[level]) {
+    const nextLevel = nextLevelMap[level as keyof typeof nextLevelMap];
+    if (nextLevel) {
+      const nextLevelRef = ref(
+        db,
+        `Authentication/users/${user.uid}/progress/${nextLevel}`
+      );
+      await update(nextLevelRef, { isUnlocked: true });
+    }
+  }
 };
 
 export const fetchProgress = async (
@@ -43,7 +75,12 @@ export const fetchProgress = async (
     | "expertLevel"
 ) => {
   const user = auth.currentUser;
-  if (!user) return { correctWords: [], correctCount: 0 };
+  if (!user)
+    return {
+      correctWords: [],
+      correctCount: 0,
+      isUnlocked: level === "beginnerLevel",
+    };
 
   const progressRef = ref(
     db,
@@ -52,8 +89,18 @@ export const fetchProgress = async (
   const snapshot = await get(progressRef);
 
   if (snapshot.exists()) {
-    return snapshot.val();
+    const val = snapshot.val();
+    return {
+      correctWords: val.correctWords || [],
+      correctCount: val.correctCount || 0,
+      isUnlocked: val.isUnlocked ?? level === "beginnerLevel",
+    };
   }
 
-  return { correctWords: [], correctCount: 0 };
+  // Beginner level is unlocked by default
+  return {
+    correctWords: [],
+    correctCount: 0,
+    isUnlocked: level === "beginnerLevel",
+  };
 };

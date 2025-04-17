@@ -6,6 +6,8 @@ import MicIcon from "@mui/icons-material/Mic";
 import { grey } from "@mui/material/colors";
 import { fetchWords } from "./fetchingExpertWords/fetchExpertWords";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
@@ -93,6 +95,7 @@ export default function Expert() {
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
+  const [similarityScore, setSimilarityScore] = useState<number>(0);
 
   const router = useRouter();
 
@@ -177,13 +180,20 @@ export default function Expert() {
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
       const correctWord = currentWord?.Content.trim().toLowerCase() || "";
+      const cleanText = (text: string) =>
+        text
+          .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()"?']/g, "")
+          .replace(/\s{2,}/g, " ")
+          .toLowerCase();
 
+      const userSpeechClean = cleanText(userSpeech);
+      const correctWordClean = cleanText(correctWord);
       console.log("User said:", userSpeech);
       console.log("Expected word:", correctWord);
-      const similarity = phoneticSimilarity(userSpeech, correctWord);
+      const similarity = phoneticSimilarity(userSpeechClean, correctWordClean);
 
       console.log("Similarity:", similarity);
-
+      setSimilarityScore(similarity);
       // Process result after a pause or when speech is finished
       if (similarity >= 0.4) {
         setFeedback("✅ Great job! Moving to the next word...");
@@ -196,6 +206,7 @@ export default function Expert() {
         setTimeout(() => {
           setFeedback("");
           setShowAnimation(false);
+          setSimilarityScore(0);
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
           );
@@ -227,18 +238,12 @@ export default function Expert() {
             backgroundRepeat: "no-repeat",
           }}
         >
-          <div className="flex justify-between">
-            <button
-              className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
-              onClick={() => router.back()}
-            >
-              End Session
-            </button>{" "}
+          <div className="flex justify-end">
             <button
               className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
               onClick={() => router.push("./")}
             >
-              Home
+              <ExitToAppIcon fontSize="medium" />
             </button>
           </div>
           {/* Progress Bar */}
@@ -293,9 +298,27 @@ export default function Expert() {
                 </div>
               </div>
             </div>
+            {feedback && <p className="mt-4 text-lg">{feedback}</p>}
+            {similarityScore !== null && (
+              <div className="mt-4 w-full max-w-md mx-auto">
+                <p className="text-center font-semibold text-xl">
+                  Similarity Score: {(similarityScore * 100).toFixed(0)}%
+                </p>
+                <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden mt-2">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      similarityScore >= 0.7
+                        ? "bg-green-500"
+                        : similarityScore >= 0.5
+                        ? "bg-yellow-400"
+                        : "bg-red-500"
+                    }`}
+                    style={{ width: `${similarityScore * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-
-          {feedback && <p className="mt-4 text-lg">{feedback}</p>}
         </div>
       ) : (
         <p>Loading Paragraph...</p>

@@ -1,8 +1,9 @@
 "use client";
-import { useState } from "react";
-import { auth } from "../firebase/config";
+import { useState, useEffect } from "react";
+import { auth, db } from "../firebase/config";
 import { signOut } from "firebase/auth";
-// import { ref, get } from "firebase/database";
+import { onAuthStateChanged } from "firebase/auth";
+import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
 
 interface User {
@@ -17,6 +18,21 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (!currentUser) {
+        router.push("/login");
+      } else {
+        const userRef = ref(db, `Authentication/users/${currentUser.uid}`);
+        const snapshot = await get(userRef);
+        if (snapshot.exists()) {
+          setUser(snapshot.val());
+        }
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/login");

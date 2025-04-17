@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { fetchWords } from "./fetchProficientWords/fetchProficientWords";
 import cat from "../../../public/images/cat.jpg";
 import MicIcon from "@mui/icons-material/Mic";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import { grey } from "@mui/material/colors";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
@@ -93,6 +94,7 @@ export default function Proficient() {
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
+  const [similarityScore, setSimilarityScore] = useState<number>(0);
 
   const router = useRouter();
 
@@ -191,7 +193,7 @@ export default function Proficient() {
 
       const accuracy = (correctCount / correctWords.length) * 100;
       console.log("Sentence accuracy:", accuracy);
-
+      setSimilarityScore(accuracy / 100);
       if (accuracy >= 60) {
         setFeedback("✅ Great job! You're doing well, keep it up!");
         setShowAnimation(true);
@@ -203,6 +205,7 @@ export default function Proficient() {
         setTimeout(() => {
           setFeedback("");
           setShowAnimation(false);
+          setSimilarityScore(0);
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
           );
@@ -229,18 +232,12 @@ export default function Proficient() {
             backgroundRepeat: "no-repeat",
           }}
         >
-          <div className="flex justify-between">
-            <button
-              className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
-              onClick={() => router.back()}
-            >
-              End Session
-            </button>{" "}
+          <div className="flex justify-end">
             <button
               className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
               onClick={() => router.push("./")}
             >
-              Home
+              <ExitToAppIcon fontSize="medium" />
             </button>
           </div>
           {/* Progress Bar */}
@@ -295,9 +292,27 @@ export default function Proficient() {
                 </div>
               </div>
             </div>
+            {feedback && <p className="mt-4 text-lg">{feedback}</p>}
+            {similarityScore !== null && (
+              <div className="mt-4 w-full max-w-md mx-auto">
+                <p className="text-center font-semibold text-xl">
+                  Similarity Score: {(similarityScore * 100).toFixed(0)}%
+                </p>
+                <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden mt-2">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      similarityScore >= 0.7
+                        ? "bg-green-500"
+                        : similarityScore >= 0.5
+                        ? "bg-yellow-400"
+                        : "bg-red-500"
+                    }`}
+                    style={{ width: `${similarityScore * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-
-          {feedback && <p className="mt-4 text-lg">{feedback}</p>}
         </div>
       ) : (
         <p>Loading word...</p>
