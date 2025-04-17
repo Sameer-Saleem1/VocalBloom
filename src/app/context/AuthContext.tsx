@@ -64,7 +64,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {loading ? <p>Loading...</p> : children}
+      {loading ? (
+        <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+          Loading Vocal Bloom
+        </p>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

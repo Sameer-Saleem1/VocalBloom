@@ -18,7 +18,12 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     }
   }, [user, loading, router]);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading)
+    return (
+      <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+        Loading...
+      </p>
+    );
 
   return user ? <>{children}</> : null;
 }

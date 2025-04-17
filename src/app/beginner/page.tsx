@@ -302,7 +302,9 @@ export default function LearningCard() {
           </div>
         </div>
       ) : (
-        <p>Loading word...</p>
+        <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+          Loading word...
+        </p>
       )}
       {showAnimation && (
         <div className="absolute top-1/4 left-1/4 flex justify-center items-center  w-2/4 h-2/4 z-20">
