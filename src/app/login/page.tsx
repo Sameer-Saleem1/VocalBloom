@@ -62,7 +62,13 @@ export default function Login() {
       <h2 className="text-xs font-semibold text-gray-700 mb-4">
         Type your email and then type your password below, in the boxes
       </h2>
-      <div className="p-8 rounded-lg shadow-lg backdrop-blur-md w-96 text-center">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+        className="p-8 rounded-lg shadow-lg backdrop-blur-md w-96 text-center"
+      >
         <div className="relative mb-4">
           <input
             type="email"
@@ -88,23 +94,18 @@ export default function Login() {
             {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
           </button>
         </div>
-        <p
-          className="absolute text-2xl font-bold left-25
-        bottom-11"
-        >
-          →
-        </p>
+
         <button
           onClick={handleLogin}
           className=" ml-25 flex items-center justify-center w-1/3 p-3 rounded-lg bg-[#e9bfa3] text-gray-800 font-semibold hover:bg-[#d9a58c] transition cursor-pointer"
         >
           Login
         </button>
-      </div>
+      </form>
       <p className="mt-3 text-gray-700">
-        Already have an account?{" "}
+        Don't have an account?{" "}
         <span
-          className="cursor-pointer underline hover:text-[#d9a58a] transition"
+          className="cursor-pointer font-bold underline hover:text-[#d9a58a] transition"
           onClick={() => router.push("/sign-up")}
         >
           Sign Up

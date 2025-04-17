@@ -44,10 +44,26 @@ export default function Signup() {
       setPasswordMatch(password === value); // Ensure matching logic works
     }
   };
-
   const handleSignup = async () => {
     if (userData.password !== userData.confirmPassword) {
-      alert("Passwords do not match!");
+      alert("❌ Passwords do not match!");
+      return;
+    }
+
+    if (
+      !userData.Name ||
+      !userData.FatherName ||
+      !userData.Email ||
+      !userData.childAge
+    ) {
+      alert("❗ Please fill in all the fields before signing up.");
+      return;
+    }
+
+    if (passwordStrength !== "Strong") {
+      alert(
+        "⚠️ Your password is too weak. It must contain at least 8 characters, including an uppercase letter, a number, and a special character."
+      );
       return;
     }
 
@@ -76,10 +92,34 @@ export default function Signup() {
         },
       });
 
-      router.push("/"); // Redirect after signup
-    } catch (error) {
-      console.error(error);
-      alert("Error signing up!");
+      router.push("/");
+    } catch (error: any) {
+      console.error("Signup Error:", error);
+      let errorMessage = "⚠️ Something went wrong while signing up.";
+
+      // Firebase Auth Error Handling
+      switch (error.code) {
+        case "auth/email-already-in-use":
+          errorMessage =
+            "⚠️ This email is already in use. Try logging in instead.";
+          break;
+        case "auth/invalid-email":
+          errorMessage =
+            "⚠️ The email address is invalid. Please check the format.";
+          break;
+        case "auth/weak-password":
+          errorMessage =
+            "⚠️ Password is too weak. It must be at least 8 characters long and include a number, uppercase letter, and special character.";
+          break;
+        case "auth/missing-email":
+          errorMessage =
+            "⚠️ Email is missing. Please provide an email address.";
+          break;
+        default:
+          errorMessage = `❌ Unexpected error: ${error.message}`;
+      }
+
+      alert(errorMessage);
     }
   };
 
@@ -133,14 +173,14 @@ export default function Signup() {
           name="Name"
           placeholder="Name"
           onChange={handleChange}
-          className="border p-2 m-2 w-60 border rounded-lg"
+          className="border p-2 m-2 w-60  rounded-lg"
         />
         <input
           type="text"
           name="FatherName"
           placeholder="Father's Name"
           onChange={handleChange}
-          className="border p-2 m-2 w-60 border rounded-lg"
+          className="border p-2 m-2 w-60  rounded-lg"
         />
       </div>
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -149,7 +189,7 @@ export default function Signup() {
           name="Email"
           placeholder="Email"
           onChange={handleChange}
-          className="border p-2 m-2 w-60 border rounded-lg"
+          className="border p-2 m-2 w-60  rounded-lg"
         />
         <input
           type="number"
@@ -158,7 +198,7 @@ export default function Signup() {
           name="childAge"
           placeholder="Child's Age"
           onChange={handleChange}
-          className="border p-2 m-2 w-60 border rounded-lg"
+          className="border p-2 m-2 w-60  rounded-lg"
         />
       </div>
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -189,7 +229,12 @@ export default function Signup() {
             {passwordStrength && `Password Strength: ${passwordStrength}`}
           </p>
         </div>
-        <div>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSignup();
+          }}
+        >
           <div className="absolute flex items-center">
             <div className="relative flex items-center -left-6 top-2">
               <div className="relative group">
@@ -231,7 +276,7 @@ export default function Signup() {
               passwordStrength === "Strong" ? "text-green-600" : "text-red-600"
             }`}
           ></p>
-        </div>
+        </form>
       </div>
       <button
         onClick={handleSignup}
@@ -239,7 +284,7 @@ export default function Signup() {
       >
         Signup
       </button>
-      <p className="py-2">
+      <p className="py-2 text-gray-700">
         Already have an account?{" "}
         <span
           className="cursor-pointer font-semibold underline hover:text-[#d9a58c] transition"

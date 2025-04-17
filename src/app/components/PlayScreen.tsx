@@ -6,6 +6,13 @@ import { ref, get } from "firebase/database";
 import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import CancelIcon from "@mui/icons-material/Cancel";
+
+type Level =
+  | "beginnerLevel"
+  | "intermediateLevel"
+  | "expertLevel"
+  | "proficientLevel";
 
 interface User {
   Name: string;
@@ -13,11 +20,21 @@ interface User {
   Email: string;
   childAge: string;
   UserID: string;
+  progress?: {
+    [key in Level]?: {
+      correctCount: number;
+    };
+  };
 }
 
 export default function PlayScreen() {
   const [user, setUser] = useState<User | null>(null);
+  const [dashboardVisible, setDashboardVisible] = useState(false);
   const router = useRouter();
+
+  const handleDashboard = () => {
+    setDashboardVisible(!dashboardVisible);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -39,12 +56,74 @@ export default function PlayScreen() {
     router.push("/login");
     setUser(null);
   };
+  const levels: Level[] = [
+    "beginnerLevel",
+    "intermediateLevel",
+    "expertLevel",
+    "proficientLevel",
+  ];
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
       <div className="absolute top-8 left-8 text-3xl font-bold">
-        Hi, {user ? user.Name : " "}
+        Hi,{" "}
+        {user ? (
+          <>
+            {user.Name}
+            <div className="mt-20">
+              <div className="  bg-white rounded-xl shadow-lg p-3 ">
+                <button
+                  onClick={() => {
+                    setDashboardVisible(true);
+                  }}
+                  className="text-xl font-bold mb-2 text-center cursor-pointer"
+                >
+                  Click to view Dashboard
+                </button>
+                {dashboardVisible && (
+                  <span
+                    className="ml-30 cursor-pointer "
+                    onClick={() => {
+                      setDashboardVisible(false);
+                    }}
+                  >
+                    <CancelIcon />
+                  </span>
+                )}
+                {dashboardVisible &&
+                  levels.map((level) => {
+                    const levelData = user?.progress?.[level];
+                    const isUnlocked = levelData !== undefined;
+
+                    return (
+                      <div
+                        key={level}
+                        className={`flex text-lg mb-4 justify-between p-3 border rounded-lg ${
+                          isUnlocked
+                            ? "bg-green-100 border-green-400"
+                            : "bg-gray-200 border-gray-300 text-gray-500"
+                        }`}
+                      >
+                        <span className=" capitalize pr-5">
+                          {level.replace("Level", "")} Level
+                        </span>
+                        {isUnlocked ? (
+                          <span>
+                            {levelData?.correctCount ?? 0} tasks completed
+                          </span>
+                        ) : (
+                          <span>Locked</span>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </>
+        ) : (
+          " "
+        )}
       </div>
       {/* Score */}
       <div className="absolute top-8 right-8 flex items-center space-x-2 text-xl font-bold">
