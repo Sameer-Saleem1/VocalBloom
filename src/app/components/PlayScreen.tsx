@@ -44,7 +44,7 @@ export default function PlayScreen() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
       <div className="absolute top-8 left-8 text-3xl font-bold">
-        Hi, {user ? user.Name + " " + user.FatherName : ""}
+        Hi, {user ? user.Name : " "}
       </div>
       {/* Score */}
       <div className="absolute top-8 right-8 flex items-center space-x-2 text-xl font-bold">

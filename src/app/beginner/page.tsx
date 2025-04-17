@@ -95,6 +95,7 @@ export default function LearningCard() {
   const [feedback, setFeedback] = useState<string>("");
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
+  const [similarityScore, setSimilarityScore] = useState<number>(0);
 
   const router = useRouter();
 
@@ -172,6 +173,7 @@ export default function LearningCard() {
       console.log("User said:", userSpeech);
       console.log("Expected word:", correctWord);
       const similarity = phoneticSimilarity(userSpeech, correctWord);
+      setSimilarityScore(similarity);
 
       console.log("Similarity:", similarity);
 
@@ -185,6 +187,7 @@ export default function LearningCard() {
 
         setTimeout(() => {
           setFeedback("");
+          setSimilarityScore(0);
           setShowAnimation(false);
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
@@ -281,9 +284,27 @@ export default function LearningCard() {
                 </div>
               </div>
             </div>
+            {feedback && <p className="mt-4 text-lg">{feedback}</p>}
+            {similarityScore !== null && (
+              <div className="mt-4 w-full max-w-md mx-auto">
+                <p className="text-center font-semibold text-xl">
+                  Similarity Score: {(similarityScore * 100).toFixed(0)}%
+                </p>
+                <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden mt-2">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      similarityScore >= 0.7
+                        ? "bg-orange-300"
+                        : similarityScore >= 0.5
+                        ? "bg-yellow-400"
+                        : "bg-red-500"
+                    }`}
+                    style={{ width: `${similarityScore * 100}%` }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
-
-          {feedback && <p className="mt-4 text-lg">{feedback}</p>}
         </div>
       ) : (
         <p>Loading word...</p>
