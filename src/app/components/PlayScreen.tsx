@@ -62,6 +62,25 @@ export default function PlayScreen() {
     "expertLevel",
     "proficientLevel",
   ];
+  const levelRequirements: {
+    [key in Level]?: {
+      prevLevel: Level;
+      requiredCount: number;
+    };
+  } = {
+    intermediateLevel: {
+      prevLevel: "beginnerLevel",
+      requiredCount: 100,
+    },
+    proficientLevel: {
+      prevLevel: "intermediateLevel",
+      requiredCount: 50,
+    },
+    expertLevel: {
+      prevLevel: "proficientLevel",
+      requiredCount: 25,
+    },
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
@@ -94,7 +113,23 @@ export default function PlayScreen() {
                 {dashboardVisible &&
                   levels.map((level) => {
                     const levelData = user?.progress?.[level];
-                    const isUnlocked = levelData !== undefined;
+                    let isUnlocked = false;
+
+                    if (level === "beginnerLevel") {
+                      isUnlocked = true;
+                    } else {
+                      const requirement = levelRequirements[level];
+                      if (requirement) {
+                        const prevLevelData =
+                          user?.progress?.[requirement.prevLevel];
+                        const prevCorrectCount =
+                          prevLevelData?.correctCount ?? 0;
+
+                        if (prevCorrectCount >= requirement.requiredCount) {
+                          isUnlocked = true;
+                        }
+                      }
+                    }
 
                     return (
                       <div
@@ -105,7 +140,7 @@ export default function PlayScreen() {
                             : "bg-gray-200 border-gray-300 text-gray-500"
                         }`}
                       >
-                        <span className=" capitalize pr-5">
+                        <span className="capitalize pr-5">
                           {level.replace("Level", "")} Level
                         </span>
                         {isUnlocked ? (
