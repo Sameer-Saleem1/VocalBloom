@@ -93,30 +93,34 @@ export default function Signup() {
       });
 
       router.push("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Signup Error:", error);
       let errorMessage = "⚠️ Something went wrong while signing up.";
 
-      // Firebase Auth Error Handling
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          errorMessage =
-            "⚠️ This email is already in use. Try logging in instead.";
-          break;
-        case "auth/invalid-email":
-          errorMessage =
-            "⚠️ The email address is invalid. Please check the format.";
-          break;
-        case "auth/weak-password":
-          errorMessage =
-            "⚠️ Password is too weak. It must be at least 8 characters long and include a number, uppercase letter, and special character.";
-          break;
-        case "auth/missing-email":
-          errorMessage =
-            "⚠️ Email is missing. Please provide an email address.";
-          break;
-        default:
-          errorMessage = `❌ Unexpected error: ${error.message}`;
+      if (typeof error === "object" && error !== null && "code" in error) {
+        const firebaseError = error as { code: string; message?: string };
+        switch (firebaseError.code) {
+          case "auth/email-already-in-use":
+            errorMessage =
+              "⚠️ This email is already in use. Try logging in instead.";
+            break;
+          case "auth/invalid-email":
+            errorMessage =
+              "⚠️ The email address is invalid. Please check the format.";
+            break;
+          case "auth/weak-password":
+            errorMessage =
+              "⚠️ Password is too weak. It must be at least 8 characters long and include a number, uppercase letter, and special character.";
+            break;
+          case "auth/missing-email":
+            errorMessage =
+              "⚠️ Email is missing. Please provide an email address.";
+            break;
+          default:
+            errorMessage = `❌ Unexpected error: ${
+              firebaseError.message || "Unknown error"
+            }`;
+        }
       }
 
       alert(errorMessage);

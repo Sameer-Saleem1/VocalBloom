@@ -32,9 +32,9 @@ export default function PlayScreen() {
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const router = useRouter();
 
-  const handleDashboard = () => {
-    setDashboardVisible(!dashboardVisible);
-  };
+  // const handleDashboard = () => {
+  //   setDashboardVisible(!dashboardVisible);
+  // };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
