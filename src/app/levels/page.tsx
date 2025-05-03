@@ -99,7 +99,7 @@ const Levels = () => {
       <div>
         <button
           onClick={() => router.push("./")}
-          className="rounded bg-orange-300 m-4 p-2 font-bold text-lg cursor-pointer tracking-[.03rem] hover:bg-orange-400 transition-colors duration-300"
+          className=" bg-[#f3c5a8] rounded-2xl border-3 text-xl border-gray-900  m-4 p-2 font-bold  cursor-pointer tracking-[.03rem] hover:bg-orange-300 transition-colors duration-300"
         >
           Back to Home
         </button>

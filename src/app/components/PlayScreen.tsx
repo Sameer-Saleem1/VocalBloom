@@ -1,12 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 import { ref, get } from "firebase/database";
-import { signOut } from "firebase/auth";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import CancelIcon from "@mui/icons-material/Cancel";
+import MenuIcon from "@mui/icons-material/Menu";
 
 type Level =
   | "beginnerLevel"
@@ -32,10 +31,6 @@ export default function PlayScreen() {
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const router = useRouter();
 
-  // const handleDashboard = () => {
-  //   setDashboardVisible(!dashboardVisible);
-  // };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
@@ -51,17 +46,20 @@ export default function PlayScreen() {
 
     return () => unsubscribe();
   }, []);
+
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/login");
     setUser(null);
   };
+
   const levels: Level[] = [
     "beginnerLevel",
     "intermediateLevel",
     "expertLevel",
     "proficientLevel",
   ];
+
   const levelRequirements: {
     [key in Level]?: {
       prevLevel: Level;
@@ -86,97 +84,77 @@ export default function PlayScreen() {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
       <div className="absolute top-8 left-8 text-3xl font-bold">
-        Hi,{" "}
-        {user ? (
-          <>
-            {user.Name}
-            <div className="mt-20">
-              <div className="  bg-white rounded-xl shadow-lg p-3 ">
-                <button
-                  onClick={() => {
-                    setDashboardVisible(true);
-                  }}
-                  className="text-xl font-bold mb-2 text-center cursor-pointer"
-                >
-                  Click to view Dashboard
-                </button>
-                {dashboardVisible && (
-                  <span
-                    className="ml-30 cursor-pointer "
-                    onClick={() => {
-                      setDashboardVisible(false);
-                    }}
-                  >
-                    <CancelIcon />
-                  </span>
-                )}
-                {dashboardVisible &&
-                  levels.map((level) => {
-                    const levelData = user?.progress?.[level];
-                    let isUnlocked = false;
-
-                    if (level === "beginnerLevel") {
-                      isUnlocked = true;
-                    } else {
-                      const requirement = levelRequirements[level];
-                      if (requirement) {
-                        const prevLevelData =
-                          user?.progress?.[requirement.prevLevel];
-                        const prevCorrectCount =
-                          prevLevelData?.correctCount ?? 0;
-
-                        if (prevCorrectCount >= requirement.requiredCount) {
-                          isUnlocked = true;
-                        }
-                      }
-                    }
-
-                    return (
-                      <div
-                        key={level}
-                        className={`flex text-lg mb-4 justify-between p-3 border rounded-lg ${
-                          isUnlocked
-                            ? "bg-green-100 border-green-400"
-                            : "bg-gray-200 border-gray-300 text-gray-500"
-                        }`}
-                      >
-                        <span className="capitalize pr-5">
-                          {level.replace("Level", "")} Level
-                        </span>
-                        {isUnlocked ? (
-                          <span>
-                            {levelData?.correctCount ?? 0} tasks completed
-                          </span>
-                        ) : (
-                          <span>Locked</span>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
-            </div>
-          </>
-        ) : (
-          " "
-        )}
+        Hi, {user ? user.Name : ""}
       </div>
-      {/* Score */}
-      <div className="absolute top-8 right-8 flex items-center space-x-2 text-xl font-bold">
+
+      {/* Score & Menu */}
+      <div className="absolute top-8 right-8 flex items-center space-x-4 text-xl font-bold">
+        <div className="relative">
+          <button
+            onClick={() => setDashboardVisible(!dashboardVisible)}
+            className="text-xl font-bold text-center cursor-pointer"
+          >
+            <MenuIcon fontSize="large" />
+          </button>
+
+          {dashboardVisible && (
+            <div className="absolute right-0 mt-2 w-65 bg-white shadow-lg rounded-lg z-10 border border-none p-2">
+              {levels.map((level) => {
+                const levelData = user?.progress?.[level];
+                let isUnlocked = false;
+
+                if (level === "beginnerLevel") {
+                  isUnlocked = true;
+                } else {
+                  const requirement = levelRequirements[level];
+                  if (requirement) {
+                    const prevLevelData =
+                      user?.progress?.[requirement.prevLevel];
+                    const prevCorrectCount = prevLevelData?.correctCount ?? 0;
+                    if (prevCorrectCount >= requirement.requiredCount) {
+                      isUnlocked = true;
+                    }
+                  }
+                }
+
+                return (
+                  <div
+                    key={level}
+                    className={`flex flex-col mb-3 p-2 rounded-lg ${
+                      isUnlocked
+                        ? "bg-orange-200 text-black-800"
+                        : "bg-gray-200 text-gray-500"
+                    }`}
+                  >
+                    <span className="capitalize">
+                      {level.replace("Level", "")} Level
+                    </span>
+                    <span className="text-sm tracking-wide">
+                      {isUnlocked
+                        ? `${levelData?.correctCount ?? 0} tasks completed`
+                        : "Locked"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <button
           onClick={handleLogout}
-          className="bg-red-500 text-white p-2 rounded cursor-pointer"
+          className="text-2xl bg-[#f3c5a8] rounded-2xl px-4 py-2 border-3 border-gray-900 cursor-pointer"
         >
           Logout
         </button>
-        {/* <span>15</span>
-        <span>⭐</span> */}
       </div>
+
       {/* Animated Buttons */}
       <div className="flex flex-col items-center space-y-4">
         <div className="flex items-center space-x-4">
           {/* Left arrow (animated) */}
           <motion.div
-            animate={{ x: [-5, 0, -5] }} // Moves left & right
+            animate={{ x: [-5, 0, -5] }}
             transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
             className="text-2xl"
           >
@@ -186,7 +164,7 @@ export default function PlayScreen() {
           {/* Play Button */}
           <button
             onClick={() => router.push("/levels")}
-            className="flex items-center space-x-2 px-6 py-3 bg-[#e5b59d] rounded-lg border-3 border-gray-900 shadow-lg text-2xl font-semibold hover:scale-102  transition-transform duration-[200ms] ease cursor-pointer"
+            className="flex items-center space-x-2 px-6 py-2 bg-[#f3c5a8] rounded-2xl border-3 border-gray-900 shadow-lg text-2xl font-semibold hover:scale-102 transition-transform duration-200 ease cursor-pointer"
           >
             <svg
               className="w-7 h-7 stroke-gray-900"
@@ -203,7 +181,7 @@ export default function PlayScreen() {
 
           {/* Right arrow (animated) */}
           <motion.div
-            animate={{ x: [5, 0, 5] }} // Moves right & left
+            animate={{ x: [5, 0, 5] }}
             transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
             className="text-2xl"
           >
@@ -211,7 +189,7 @@ export default function PlayScreen() {
           </motion.div>
         </div>
         <p className="text-lg text-gray-800">Click the button to start</p>
-      </div>{" "}
+      </div>
     </div>
   );
 }

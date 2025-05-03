@@ -195,7 +195,7 @@ export default function Proficient() {
       console.log("Sentence accuracy:", accuracy);
       setSimilarityScore(accuracy / 100);
       if (accuracy >= 60) {
-        setFeedback("✅ Great job! You're doing well, keep it up!");
+        setFeedback("Great job! You're doing well, keep it up!");
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
@@ -211,7 +211,7 @@ export default function Proficient() {
           );
         }, 3000);
       } else {
-        setFeedback(`❌ Oops! You said "${userSpeech}". Try again.`);
+        setFeedback(`Oops! You said "${userSpeech}". Try again.`);
       }
     };
 
@@ -234,26 +234,26 @@ export default function Proficient() {
         >
           <div className="flex justify-end">
             <button
-              className="cursor-pointer font-bold text-xl bg-orange-300 rounded p-1 m-4 shadow-lg hover:bg-orange-400 transition duration-300"
+              className="cursor-pointer font-bold text-xl border-3 border-black bg-[#f3c5a8] rounded-lg px-3 py-1 m-4 shadow-lg hover:bg-orange-300 transition duration-300"
               onClick={() => router.push("./")}
             >
-              <ExitToAppIcon fontSize="medium" />
+              <ExitToAppIcon fontSize="large" />
             </button>
           </div>
           {/* Progress Bar */}
           <div className="items-center justify-center flex flex-col mt-10">
-            <p className="text-2xl bg-orange-300 px-5 rounded font-bold">
+            <p className="text-2xl bg-[#f3c5a8] border-3 border-black px-5 py-1 rounded-lg font-bold">
               {progress}/25
             </p>
-            <div className="w-2/4 bg-orange-300 h-3 rounded-full relative mb-10 mt-5">
+            <div className="w-2/4 bg-[#f3c5a8] h-3 rounded-full relative mb-10 mt-5">
               <div
-                className="h-3 bg-orange-500 rounded-full"
+                className="h-3 bg-[#d97f43] rounded-full"
                 style={{ width: `${Math.min((progress / 25) * 100, 100)}%` }}
               ></div>
             </div>
 
             {/* Card Container */}
-            <div className="bg-orange-200 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative mb-20 ">
+            <div className="bg-orange-200 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative  ">
               <div className="flex items-center justify-center gap-25">
                 {/* Word Display */}
                 <h1 className="text-4xl font-semibold text-orange-700 flex flex-wrap justify-center">
@@ -274,14 +274,19 @@ export default function Proficient() {
 
               {/* Buttons */}
               <div className="flex justify-center items-center mt-6">
-                <div className="bg-orange-300 p-2 rounded-full shadow-lg cursor-pointer">
-                  <span onClick={speakWord}>
+                <div
+                  onClick={speakWord}
+                  className="bg-[#f3c5a8] shadow-[#b39887] p-2 rounded-full shadow-lg cursor-pointer"
+                >
+                  <span>
                     <MicIcon fontSize="large" sx={{ color: grey[800] }} />
                   </span>
                 </div>
-                <div className=" mx-3 bg-orange-300 p-2 rounded-full shadow-lg cursor-pointer">
+                <div
+                  onClick={listenToUser}
+                  className=" mx-3 bg-[#f3c5a8] shadow-[#b39887] p-2 rounded-full shadow-lg cursor-pointer"
+                >
                   <span
-                    onClick={listenToUser}
                     className={`text-2xl  rounded-lg transition ${
                       listening ? " text-white" : " text-white "
                     }`}
@@ -298,11 +303,11 @@ export default function Proficient() {
                 <p className="text-center font-semibold text-xl">
                   Similarity Score: {(similarityScore * 100).toFixed(0)}%
                 </p>
-                <div className="w-full h-4 bg-gray-300 rounded-full overflow-hidden mt-2">
+                <div className="w-full h-4 bg-[#f3c5a8] rounded-full overflow-hidden mt-2">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
                       similarityScore >= 0.7
-                        ? "bg-green-500"
+                        ? "bg-orange-300"
                         : similarityScore >= 0.5
                         ? "bg-yellow-400"
                         : "bg-red-500"
