@@ -3,7 +3,7 @@ import LoginBG from "../../../public/images/loginBG.svg";
 import { useEffect, useState } from "react";
 import { auth } from "../firebase/config";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import PersonIcon from "@mui/icons-material/Person";
@@ -15,16 +15,17 @@ export default function Login() {
   });
   const [showPassword, setShowPassword] = useState(false);
 
+  const pathName = usePathname();
   const router = useRouter();
 
   useEffect(() => {
     // Listen for auth state changes
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.push("/"); // Redirect if user is authenticated
+      if (user && pathName !== "/") {
+        router.push("/");
       }
     });
-    return () => unsubscribe(); // Cleanup the listener
+    return () => unsubscribe();
   }, [router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +35,6 @@ export default function Login() {
   const handleLogin = async () => {
     try {
       await signInWithEmailAndPassword(auth, userData.Email, userData.password);
-      router.push("/"); // Redirect to dashboard after successful login
     } catch (error) {
       console.error(error);
       alert("Invalid credentials. Please try again.");
