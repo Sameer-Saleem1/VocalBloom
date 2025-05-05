@@ -320,7 +320,7 @@ export default function Proficient() {
           </div>
         </div>
       ) : (
-        <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+        <p className="bg-[#f3c5a8] min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
           Loading sentence...
         </p>
       )}

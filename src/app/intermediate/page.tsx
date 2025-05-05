@@ -1,5 +1,5 @@
 "use client";
-// import Image from "next/image";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
@@ -200,6 +200,10 @@ export default function Intermediate() {
     recognition.start();
   };
 
+  const sanitizeFilename = (word: string) => {
+    return word.toLowerCase().replace(/[^\w\s]|_/g, ""); // remove punctuation marks
+  };
+
   const progress = correctPronunciations;
 
   return (
@@ -223,7 +227,7 @@ export default function Intermediate() {
             </button>
           </div>
           {/* Progress Bar */}
-          <div className="items-center justify-center flex flex-col mt-10">
+          <div className="items-center justify-center flex flex-col mt-">
             <p className="text-2xl bg-[#f3c5a8] border-3 border-black px-5 py-1 rounded-lg font-bold">
               {progress}/50
             </p>
@@ -235,7 +239,7 @@ export default function Intermediate() {
             </div>
 
             {/* Card Container */}
-            <div className="bg-orange-100 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative  ">
+            <div className="bg-orange-100 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative  mb-0">
               <div className="flex items-center justify-center gap-25">
                 {/* Word Display */}
                 <h1 className="text-5xl font-semibold text-[#d97f43]">
@@ -243,13 +247,15 @@ export default function Intermediate() {
                 </h1>
 
                 {/* Image */}
-                {currentWord["Image"] ? (
-                  <img
-                    src={getDirectImageLink(currentWord["Image"])}
-                    alt={currentWord["Image"]}
+                {currentWord.Content ? (
+                  <Image
+                    src={`/DatasetImages/${sanitizeFilename(
+                      currentWord?.Content || ""
+                    )}.svg`}
+                    alt="Image not found"
                     width={150}
                     height={180}
-                    className="rounded-full fit shadow-lg ml-4"
+                    className=""
                   />
                 ) : (
                   "not found"
@@ -304,7 +310,7 @@ export default function Intermediate() {
           </div>
         </div>
       ) : (
-        <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+        <p className="bg-[#f3c5a8] min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
           Loading phrase...
         </p>
       )}

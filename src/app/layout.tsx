@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext";
 
-const inter = Geist({
+const inter = Inter({
   subsets: ["latin"],
 });
 console.log(inter);

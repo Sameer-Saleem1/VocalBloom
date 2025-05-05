@@ -1,5 +1,5 @@
 "use client";
-// import Image from "next/image";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 // import { auth } from "../firebase/config";
 import { useRouter } from "next/navigation";
@@ -12,7 +12,6 @@ import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
-// import success from '../components/success.wav'
 
 interface Word {
   Category: string;
@@ -97,39 +96,50 @@ export default function LearningCard() {
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [similarityScore, setSimilarityScore] = useState<number>(0);
+  const [dataLoaded, setDataLoaded] = useState<Boolean>(false);
+  const [incorrectAttempts, setIncorrectAttempts] = useState<number>(0); // Track incorrect attempts
 
   const router = useRouter();
 
   useEffect(() => {
     const loadWords = async () => {
       const words = await fetchWords();
-      if (words.length > 0) {
-        setWord(words);
-      }
       const progress = await fetchProgress("beginnerLevel");
-      setCorrectPronunciations(progress.correctCount || 0);
 
-      if (progress.correctWords && words.length > 0) {
-        const lastWordIndex = words.findIndex(
-          (w) =>
-            w.Content ===
-            progress.correctWords[progress.correctWords.length - 1]
-        );
-        setCurrentIndex(
-          lastWordIndex + 1 < words.length ? lastWordIndex + 1 : 0
-        );
+      if (words.length > 0) {
+        let index = 0;
+
+        if (progress.correctWords && progress.correctWords.length > 0) {
+          const lastWordIndex = words.findIndex(
+            (w) =>
+              w.Content ===
+              progress.correctWords[progress.correctWords.length - 1]
+          );
+          index = lastWordIndex + 1 < words.length ? lastWordIndex + 1 : 0;
+        }
+
+        setCorrectPronunciations(progress.correctCount || 0);
+        setWord(words);
+        setCurrentIndex(index);
       }
+      setDataLoaded(true);
     };
 
     loadWords();
   }, []);
-
-  const getDirectImageLink = (driveUrl?: string) => {
-    const match = driveUrl?.match(/\/d\/(.*?)\//);
-    return match
-      ? `https://drive.google.com/uc?export=view&id=${match[1]} `
-      : "";
-  };
+  if (!dataLoaded) {
+    return (
+      <div className="bg-[#F3C5A8] flex justify-center items-center h-screen">
+        <p className="text-xl font-semibold">Loading Words...</p>
+      </div>
+    );
+  }
+  // const getDirectImageLink = (driveUrl?: string) => {
+  //   const match = driveUrl?.match(/\/d\/(.*?)\//);
+  //   return match
+  //     ? `https://drive.google.com/uc?export=view&id=${match[1]} `
+  //     : "";
+  // };
 
   const currentWord = word[currentIndex] || null;
 
@@ -195,13 +205,21 @@ export default function LearningCard() {
           );
         }, 3000);
       } else {
+        setIncorrectAttempts((prevAttempts) => prevAttempts + 1); // Increase the incorrect attempts
         setFeedback(` Oops! You said "${userSpeech}". Try again.`);
+        if (incorrectAttempts >= 4) {
+          setFeedback("Too many attempts. Moving to the next word.");
+          setCurrentIndex((prevIndex) =>
+            prevIndex + 1 < word.length ? prevIndex + 1 : 0
+          );
+          setIncorrectAttempts(0);
+          setSimilarityScore(0);
+        }
       }
     };
 
     recognition.start();
   };
-
   const progress = (correctPronunciations / word.length) * 100;
 
   return (
@@ -226,7 +244,7 @@ export default function LearningCard() {
           </div>
           {/* Progress Bar */}
 
-          <div className="items-center justify-center flex flex-col mt-10">
+          <div className="items-center justify-center flex flex-col mt-0">
             <p className="text-2xl bg-[#f3c5a8] border-3 border-black px-5 py-1 rounded-lg font-bold">
               {Math.floor(progress)}/100
             </p>
@@ -245,14 +263,13 @@ export default function LearningCard() {
                   {currentWord.Content}
                 </h1>
 
-                {/* Image */}
-                {currentWord["Image"] ? (
-                  <img
-                    src={getDirectImageLink(currentWord["Image"])}
-                    alt={currentWord["Image"]}
+                {currentWord.Content ? (
+                  <Image
+                    src={`/DatasetImages/${currentWord?.Content}.svg`}
+                    alt="Image Not Found"
                     width={150}
                     height={180}
-                    className="rounded-full fit shadow-lg ml-4"
+                    className=""
                   />
                 ) : (
                   "not found"
@@ -307,7 +324,7 @@ export default function LearningCard() {
           </div>
         </div>
       ) : (
-        <p className="bg-orange-300 min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
+        <p className="bg-[#f3c5a8] min-h-screen flex flex-col justify-center items-center text-3xl font-bold">
           Loading word...
         </p>
       )}
