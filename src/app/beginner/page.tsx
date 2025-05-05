@@ -96,7 +96,7 @@ export default function LearningCard() {
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [similarityScore, setSimilarityScore] = useState<number>(0);
-  const [dataLoaded, setDataLoaded] = useState<Boolean>(false);
+  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
   const [incorrectAttempts, setIncorrectAttempts] = useState<number>(0); // Track incorrect attempts
 
   const router = useRouter();

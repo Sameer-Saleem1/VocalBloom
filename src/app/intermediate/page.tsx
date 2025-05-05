@@ -122,12 +122,12 @@ export default function Intermediate() {
     loadWords();
   }, []);
 
-  const getDirectImageLink = (driveUrl?: string) => {
-    const match = driveUrl?.match(/\/d\/(.*?)\//);
-    return match
-      ? `https://drive.google.com/uc?export=view&id=${match[1]} `
-      : "";
-  };
+  // const getDirectImageLink = (driveUrl?: string) => {
+  //   const match = driveUrl?.match(/\/d\/(.*?)\//);
+  //   return match
+  //     ? `https://drive.google.com/uc?export=view&id=${match[1]} `
+  //     : "";
+  // };
 
   const currentWord = word[currentIndex] || null;
 
