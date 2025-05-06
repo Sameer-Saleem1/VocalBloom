@@ -209,9 +209,7 @@ export default function Intermediate() {
     "Rendering image for:",
     sanitizeFilename(currentWord?.Content || "")
   );
-  const imagePath = useMemo(() => {
-    return `/DatasetImages/${sanitizeFilename(currentWord?.Content || "")}.svg`;
-  }, [currentWord]);
+
   return (
     <div className="">
       {currentWord ? (

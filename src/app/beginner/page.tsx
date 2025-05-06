@@ -107,7 +107,8 @@ export default function LearningCard() {
       const progress = await fetchProgress("beginnerLevel");
 
       if (words.length > 0) {
-        let index = 0;
+        const index = 0;
+        console.log(index);
 
         if (progress.correctWords && progress.correctWords.length > 0) {
           const lastWordIndex = words.findIndex(
