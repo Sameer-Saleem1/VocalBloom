@@ -34,10 +34,10 @@ const Levels = () => {
       if (progressResults[0].correctCount >= 20) {
         unlockedMap.intermediateLevel = true;
       }
-      if (progressResults[1].correctCount >= 25) {
+      if (progressResults[1].correctCount >= 15) {
         unlockedMap.proficientLevel = true;
       }
-      if (progressResults[2].correctCount >= 30) {
+      if (progressResults[2].correctCount >= 10) {
         unlockedMap.expertLevel = true;
       }
 

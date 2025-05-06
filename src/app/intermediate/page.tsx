@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
 import { fetchWords } from "./fetchIntermediateWords/fetchIntermediateWords";
@@ -114,7 +114,7 @@ export default function Intermediate() {
             progress.correctWords[progress.correctWords.length - 1]
         );
         setCurrentIndex(
-          lastWordIndex + 1 < words.length ? lastWordIndex + 1 : 0
+          lastWordIndex >= 0 && lastWordIndex < words.length ? lastWordIndex : 0
         );
       }
     };
@@ -201,11 +201,17 @@ export default function Intermediate() {
   };
 
   const sanitizeFilename = (word: string) => {
-    return word.toLowerCase().replace(/[^\w\s]|_/g, ""); // remove punctuation marks
+    return word.trim().replace(/[^\w\s]|_/g, "");
   };
 
   const progress = correctPronunciations;
-
+  console.log(
+    "Rendering image for:",
+    sanitizeFilename(currentWord?.Content || "")
+  );
+  const imagePath = useMemo(() => {
+    return `/DatasetImages/${sanitizeFilename(currentWord?.Content || "")}.svg`;
+  }, [currentWord]);
   return (
     <div className="">
       {currentWord ? (
@@ -239,8 +245,11 @@ export default function Intermediate() {
             </div>
 
             {/* Card Container */}
-            <div className="bg-orange-100 p-6 rounded-lg shadow-lg w-4/4 max-w-2xl text-center relative  mb-0">
-              <div className="flex items-center justify-center gap-25">
+            <div
+              className="bg-orange-100 p-3 rounded-lg shadow-lg  text-center relative  mb-0"
+              style={{ width: "700px", height: "auto" }}
+            >
+              <div className="flex items-center justify-center gap-x-5 gap-y-0">
                 {/* Word Display */}
                 <h1 className="text-5xl font-semibold text-[#d97f43]">
                   {currentWord.Content}
@@ -249,9 +258,9 @@ export default function Intermediate() {
                 {/* Image */}
                 {currentWord.Content ? (
                   <Image
-                    src={`/DatasetImages/${sanitizeFilename(
-                      currentWord?.Content || ""
-                    )}.svg`}
+                    src={`/DatasetImages/${
+                      sanitizeFilename(currentWord?.Content) || ""
+                    }.svg`}
                     alt="Image not found"
                     width={150}
                     height={180}

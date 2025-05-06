@@ -29,6 +29,7 @@ interface User {
 export default function PlayScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [dashboardVisible, setDashboardVisible] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -68,15 +69,15 @@ export default function PlayScreen() {
   } = {
     intermediateLevel: {
       prevLevel: "beginnerLevel",
-      requiredCount: 100,
+      requiredCount: 20,
     },
     proficientLevel: {
       prevLevel: "intermediateLevel",
-      requiredCount: 50,
+      requiredCount: 15,
     },
     expertLevel: {
       prevLevel: "proficientLevel",
-      requiredCount: 25,
+      requiredCount: 10,
     },
   };
 
@@ -142,7 +143,7 @@ export default function PlayScreen() {
         </div>
 
         <button
-          onClick={handleLogout}
+          onClick={() => setShowLogoutModal(true)}
           className="text-2xl bg-[#f3c5a8] rounded-2xl px-4 py-2 border-3 border-gray-900 cursor-pointer"
         >
           Logout
@@ -190,6 +191,28 @@ export default function PlayScreen() {
         </div>
         <p className="text-lg text-gray-800">Click the button to start</p>
       </div>
+      {showLogoutModal && (
+        <div className="fixed inset-0 bg-white/10 backdrop-blur-md border border-white/30 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-[90%] max-w-md text-center space-y-4">
+            <h2 className="text-xl font-bold">Confirm Logout</h2>
+            <p className="text-gray-700">Are you sure you want to logout?</p>
+            <div className="flex justify-center space-x-4">
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 cursor-pointer"
+              >
+                Yes, Logout
+              </button>
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="bg-gray-300 text-gray-900 px-4 py-2 rounded-lg hover:bg-gray-400 cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

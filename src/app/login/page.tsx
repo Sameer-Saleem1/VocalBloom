@@ -2,7 +2,11 @@
 import LoginBG from "../../../public/images/loginBG.svg";
 import { useEffect, useState } from "react";
 import { auth } from "../firebase/config";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { usePathname, useRouter } from "next/navigation";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
@@ -38,6 +42,19 @@ export default function Login() {
     } catch (error) {
       console.error(error);
       alert("Invalid credentials. Please try again.");
+    }
+  };
+  const handleForgotPassword = async () => {
+    if (!userData.Email) {
+      alert("Please enter your email address to reset the password.");
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, userData.Email);
+      alert("Password reset email sent! Please check your inbox.");
+    } catch (error) {
+      console.error("Password reset error:", error);
+      alert("Failed to send reset email. Try again later.");
     }
   };
 
@@ -105,11 +122,17 @@ export default function Login() {
       <p className="mt-3 text-gray-700">
         Do not have an account?
         <span
-          className="cursor-pointer font-bold underline hover:text-[#d9a58a] transition"
+          className="pl-2 cursor-pointer font-bold underline hover:text-[#d9a58a] transition"
           onClick={() => router.push("/sign-up")}
         >
           Sign Up
         </span>
+      </p>
+      <p
+        className="mt-3 text-sm text-gray-700 font-bold cursor-pointer hover:underline"
+        onClick={handleForgotPassword}
+      >
+        Forgot Password?
       </p>
     </div>
   );

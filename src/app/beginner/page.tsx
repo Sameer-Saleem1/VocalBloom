@@ -115,12 +115,15 @@ export default function LearningCard() {
               w.Content ===
               progress.correctWords[progress.correctWords.length - 1]
           );
-          index = lastWordIndex + 1 < words.length ? lastWordIndex + 1 : 0;
+          setCurrentIndex(
+            lastWordIndex >= 0 && lastWordIndex < words.length
+              ? lastWordIndex
+              : 0
+          );
         }
 
         setCorrectPronunciations(progress.correctCount || 0);
         setWord(words);
-        setCurrentIndex(index);
       }
       setDataLoaded(true);
     };
@@ -146,9 +149,10 @@ export default function LearningCard() {
   const speakWord = () => {
     if (word && "speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(currentWord.Content);
-      utterance.lang = "en-US";
+      utterance.lang = "en-UK";
       utterance.rate = 0.9;
       speechSynthesis.speak(utterance);
+
       setFeedback("Now, try pronouncing it!");
     } else {
       alert("Speech synthesis is not supported in your browser.");
@@ -172,10 +176,9 @@ export default function LearningCard() {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.continuous = false;
-    recognition.interimResults = false;
-
+    recognition.interimResults = true;
     recognition.onstart = () => setListening(true);
-    recognition.onend = () => setListening(false);
+    recognition.onend = () => {};
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
@@ -220,8 +223,12 @@ export default function LearningCard() {
 
     recognition.start();
   };
-  const progress = (correctPronunciations / word.length) * 100;
+  if (!("webkitSpeechRecognition" in window)) {
+    alert("Speech recognition not supported");
+  }
 
+  const progress = (correctPronunciations / word.length) * 100;
+  console.log(`Image for ${currentWord?.Content || ""}`);
   return (
     <div className="">
       {currentWord ? (
