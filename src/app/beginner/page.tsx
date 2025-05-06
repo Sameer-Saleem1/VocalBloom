@@ -275,7 +275,10 @@ export default function LearningCard() {
 
                 {currentWord.Content ? (
                   <img
-                    src={`/DatasetImages/${currentWord?.Content}.svg`}
+                    src={`/DatasetImages/${
+                      currentWord?.Content.charAt(0).toUpperCase() +
+                      currentWord?.Content.slice(1)
+                    }.svg`}
                     alt="Image Not Found"
                     width={150}
                     height={180}
