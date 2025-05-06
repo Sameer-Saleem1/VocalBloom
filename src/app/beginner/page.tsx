@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect, useState } from "react";
 // import { auth } from "../firebase/config";
 import { useRouter } from "next/navigation";
@@ -177,9 +177,11 @@ export default function LearningCard() {
     const recognition = new SpeechRecognition();
     recognition.lang = "en-US";
     recognition.continuous = false;
-    recognition.interimResults = true;
+    recognition.interimResults = false;
     recognition.onstart = () => setListening(true);
-    recognition.onend = () => {};
+    recognition.onend = () => {
+      setListening(false);
+    };
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
@@ -272,7 +274,7 @@ export default function LearningCard() {
                 </h1>
 
                 {currentWord.Content ? (
-                  <Image
+                  <img
                     src={`/DatasetImages/${currentWord?.Content}.svg`}
                     alt="Image Not Found"
                     width={150}
