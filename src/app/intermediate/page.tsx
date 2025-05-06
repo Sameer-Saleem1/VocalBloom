@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
 import { fetchWords } from "./fetchIntermediateWords/fetchIntermediateWords";
