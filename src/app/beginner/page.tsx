@@ -184,11 +184,6 @@ export default function LearningCard() {
     recognition.onend = () => {
       setListening(false);
     };
-    (recognition as any).onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
-      setFeedback("Mic error or speech not recognized. Please try again.");
-      setListening(false);
-    };
 
     recognition.onresult = async (event: SpeechRecognitionEvent) => {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
