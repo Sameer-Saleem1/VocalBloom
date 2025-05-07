@@ -194,7 +194,7 @@ export default function Proficient() {
       const accuracy = (correctCount / correctWords.length) * 100;
       console.log("Sentence accuracy:", accuracy);
       setSimilarityScore(accuracy / 100);
-      if (accuracy >= 60) {
+      if (accuracy >= 55) {
         setFeedback("Great job! You're doing well, keep it up!");
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;

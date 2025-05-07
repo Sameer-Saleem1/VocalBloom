@@ -108,7 +108,7 @@ export default function LearningCard() {
 
       if (words.length > 0) {
         const index = 0;
-        console.log(index);
+        console.log("index: ", index);
 
         if (progress.correctWords && progress.correctWords.length > 0) {
           const lastWordIndex = words.findIndex(
@@ -131,6 +131,7 @@ export default function LearningCard() {
 
     loadWords();
   }, []);
+
   if (!dataLoaded) {
     return (
       <div className="bg-[#F3C5A8] flex justify-center items-center h-screen">
@@ -138,22 +139,20 @@ export default function LearningCard() {
       </div>
     );
   }
-  // const getDirectImageLink = (driveUrl?: string) => {
-  //   const match = driveUrl?.match(/\/d\/(.*?)\//);
-  //   return match
-  //     ? `https://drive.google.com/uc?export=view&id=${match[1]} `
-  //     : "";
-  // };
 
   const currentWord = word[currentIndex] || null;
 
   const speakWord = () => {
-    if (word && "speechSynthesis" in window) {
+    if ("speechSynthesis" in window) {
       const utterance = new SpeechSynthesisUtterance(currentWord.Content);
       utterance.lang = "en-UK";
       utterance.rate = 0.9;
-      speechSynthesis.speak(utterance);
 
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel(); // Cancel any ongoing speech
+      }
+
+      speechSynthesis.speak(utterance);
       setFeedback("Now, try pronouncing it!");
     } else {
       alert("Speech synthesis is not supported in your browser.");
@@ -178,8 +177,16 @@ export default function LearningCard() {
     recognition.lang = "en-US";
     recognition.continuous = false;
     recognition.interimResults = false;
-    recognition.onstart = () => setListening(true);
+
+    recognition.onstart = () => {
+      setListening(true);
+    };
     recognition.onend = () => {
+      setListening(false);
+    };
+    (recognition as any).onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      setFeedback("Mic error or speech not recognized. Please try again.");
       setListening(false);
     };
 
@@ -187,12 +194,9 @@ export default function LearningCard() {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
       const correctWord = currentWord?.Content.trim().toLowerCase() || "";
 
-      console.log("User said:", userSpeech);
-      console.log("Expected word:", correctWord);
       const similarity = phoneticSimilarity(userSpeech, correctWord);
       setSimilarityScore(similarity);
-
-      console.log("Similarity:", similarity);
+      console.log("RAW:", event.results[0][0].transcript);
 
       if (similarity >= 0.7) {
         setFeedback(" Great job! Moving to the next word...");
@@ -211,7 +215,7 @@ export default function LearningCard() {
           );
         }, 3000);
       } else {
-        setIncorrectAttempts((prevAttempts) => prevAttempts + 1); // Increase the incorrect attempts
+        setIncorrectAttempts((prevAttempts) => prevAttempts + 1);
         setFeedback(` Oops! You said "${userSpeech}". Try again.`);
         if (incorrectAttempts >= 4) {
           setFeedback("Too many attempts. Moving to the next word.");
@@ -231,7 +235,6 @@ export default function LearningCard() {
   }
 
   const progress = (correctPronunciations / word.length) * 100;
-  console.log(`Image for ${currentWord?.Content || ""}`);
   return (
     <div className="">
       {currentWord ? (
