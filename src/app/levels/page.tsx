@@ -7,9 +7,9 @@ import { fetchProgress } from "../libs/firebaseHelpers";
 
 const Levels = () => {
   const router = useRouter();
-  const [unlockedLevels, setUnlockedLevels] = useState<Record<string, boolean>>(
-    {}
-  );
+  const [unlockedLevels, setUnlockedLevels] = useState<
+    Record<string, { unlocked: boolean; stars: number }>
+  >({});
 
   useEffect(() => {
     const getProgress = async () => {
@@ -24,22 +24,25 @@ const Levels = () => {
         levels.map((level) => fetchProgress(level))
       );
 
-      const unlockedMap: Record<string, boolean> = {
-        beginnerLevel: true, // Always unlocked
-        intermediateLevel: false,
-        proficientLevel: false,
-        expertLevel: false,
-      };
-
-      if (progressResults[0].correctCount >= 20) {
-        unlockedMap.intermediateLevel = true;
-      }
-      if (progressResults[1].correctCount >= 15) {
-        unlockedMap.proficientLevel = true;
-      }
-      if (progressResults[2].correctCount >= 10) {
-        unlockedMap.expertLevel = true;
-      }
+      const unlockedMap: Record<string, { unlocked: boolean; stars: number }> =
+        {
+          beginnerLevel: {
+            unlocked: true,
+            stars: Math.min(5, (progressResults[0].correctCount / 25) * 5),
+          },
+          intermediateLevel: {
+            unlocked: progressResults[0].correctCount >= 50,
+            stars: Math.min(5, (progressResults[1].correctCount / 20) * 5),
+          },
+          proficientLevel: {
+            unlocked: progressResults[1].correctCount >= 25,
+            stars: Math.min(5, (progressResults[2].correctCount / 15) * 5),
+          },
+          expertLevel: {
+            unlocked: progressResults[2].correctCount >= 10,
+            stars: Math.min(5, (progressResults[3].correctCount / 10) * 5),
+          },
+        };
 
       setUnlockedLevels(unlockedMap);
     };
@@ -51,10 +54,12 @@ const Levels = () => {
     title: string,
     route: string,
     levelKey: string,
-    imageUrl: string,
-    stars: number
+    imageUrl: string
   ) => {
-    const isUnlocked = unlockedLevels[levelKey];
+    const levelData = unlockedLevels[levelKey];
+    const isUnlocked = levelData?.unlocked ?? false;
+    const stars = levelData?.stars ?? 0;
+
     const handleClick = () => {
       if (isUnlocked) router.push(route);
     };
@@ -78,17 +83,25 @@ const Levels = () => {
             className="object-cover w-45 h-45"
           />
         </div>
+
         <div className="flex mt-2">
-          {Array.from({ length: 5 }, (_, i) => (
-            <span
-              key={i}
-              className={`text-orange-500 text-xl ${
-                i < Math.floor(stars) ? "opacity-100" : "opacity-50"
-              }`}
-            >
-              ★
-            </span>
-          ))}
+          {Array.from({ length: 5 }, (_: unknown, i: number) => {
+            const diff = stars - i;
+            const fillWidth = `${Math.min(1, Math.max(0, diff)) * 100}%`;
+            const fillColor = isUnlocked ? "text-orange-500" : "text-gray-400";
+
+            return (
+              <span key={i} className="relative text-xl w-5">
+                <span
+                  className={`absolute top-0 left-0 overflow-hidden ${fillColor}`}
+                  style={{ width: fillWidth }}
+                >
+                  ★
+                </span>
+                <span className="text-gray-300">★</span>
+              </span>
+            );
+          })}
         </div>
       </div>
     );
@@ -115,29 +128,25 @@ const Levels = () => {
             "Beginner",
             "/beginner",
             "beginnerLevel",
-            "/images/sky.jpg",
-            5
+            "/images/sky.jpg"
           )}
           {renderLevelCard(
             "Intermediate",
             "/intermediate",
             "intermediateLevel",
-            "/images/greenery.jpg",
-            4
+            "/images/greenery.jpg"
           )}
           {renderLevelCard(
             "Proficient",
             "/proficient",
             "proficientLevel",
-            "/images/cat.jpg",
-            3.5
+            "/images/cat.jpg"
           )}
           {renderLevelCard(
             "Expert",
             "/expert",
             "expertLevel",
-            "/images/aeroplane.jpg",
-            3.75
+            "/images/aeroplane.jpg"
           )}
         </div>
       </div>

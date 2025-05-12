@@ -1,9 +1,8 @@
 "use client";
-// import Image from "next/image";
 import { useEffect, useState } from "react";
-// import { auth } from "../firebase/config";
 import { useRouter } from "next/navigation";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
+import { storePronunciationAttempt } from "../libs/storePronunciationAttempt";
 import { fetchWords } from "./fetchingWords/fetchWords";
 import MicIcon from "@mui/icons-material/Mic";
 import { grey } from "@mui/material/colors";
@@ -191,15 +190,22 @@ export default function LearningCard() {
 
       const similarity = phoneticSimilarity(userSpeech, correctWord);
       setSimilarityScore(similarity);
-      console.log("RAW:", event.results[0][0].transcript);
 
+      // Store user pronunciation attempt data
       if (similarity >= 0.7) {
-        setFeedback(" Great job! Moving to the next word...");
+        setFeedback("Great job! Moving to the next word...");
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
 
-        await updateProgress("beginnerLevel", correctWord);
+        // Update progress with correct pronunciation
+        await storePronunciationAttempt(
+          "beginnerLevel",
+          correctWord,
+          true,
+          similarity
+        );
+        await updateProgress("beginnerLevel", correctWord, similarity * 100);
 
         setTimeout(() => {
           setFeedback("");
@@ -211,7 +217,17 @@ export default function LearningCard() {
         }, 3000);
       } else {
         setIncorrectAttempts((prevAttempts) => prevAttempts + 1);
-        setFeedback(` Oops! You said "${userSpeech}". Try again.`);
+        setFeedback(`Oops! You said "${userSpeech}". Try again.`);
+
+        // Store the failed attempt
+        await storePronunciationAttempt(
+          "beginnerLevel",
+          correctWord,
+          false,
+          similarity
+        );
+        await updateProgress("beginnerLevel", correctWord, similarity * 100);
+
         if (incorrectAttempts >= 4) {
           setFeedback("Too many attempts. Moving to the next word.");
           setCurrentIndex((prevIndex) =>

@@ -45,6 +45,11 @@ export default function Signup() {
     }
   };
   const handleSignup = async () => {
+    const age = parseInt(userData.childAge);
+    if (isNaN(age) || age < 4 || age > 12) {
+      alert("⚠️ Child's age must be between 4 and 12 years.");
+      return;
+    }
     if (userData.password !== userData.confirmPassword) {
       alert("❌ Passwords do not match!");
       return;
@@ -129,7 +134,7 @@ export default function Signup() {
 
   const validatePassword = (password: string): string => {
     const strongRegex =
-      /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
     if (password.length === 0) return "";
     if (strongRegex.test(password)) return "Strong";
     return "Weak";
@@ -174,7 +179,7 @@ export default function Signup() {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <input
           type="text"
-          name="Name"
+          name="Child Name"
           placeholder="Name"
           onChange={handleChange}
           className="border p-2 m-2 w-60  rounded-lg"
@@ -182,7 +187,7 @@ export default function Signup() {
         <input
           type="text"
           name="FatherName"
-          placeholder="Father's Name"
+          placeholder="Guardian Name"
           onChange={handleChange}
           className="border p-2 m-2 w-60  rounded-lg"
         />
@@ -286,7 +291,7 @@ export default function Signup() {
         onClick={handleSignup}
         className="bg-[#e9bfa3] font-semibold text-lg text-gray-800 p-2 rounded w-1/8 cursor-pointer hover:bg-[#d8a78c] transition duration-300 ease-in-out"
       >
-        Signup
+        Sign up
       </button>
       <p className="py-2 text-gray-700">
         Already have an account?{" "}

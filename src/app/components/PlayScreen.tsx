@@ -6,6 +6,7 @@ import { ref, get } from "firebase/database";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import MenuIcon from "@mui/icons-material/Menu";
+import { jsPDF } from "jspdf";
 
 type Level =
   | "beginnerLevel"
@@ -22,6 +23,13 @@ interface User {
   progress?: {
     [key in Level]?: {
       correctCount: number;
+      tasks?: {
+        [taskId: string]: {
+          word: string;
+          attempts: { accuracy: number }[];
+          mastered: boolean;
+        };
+      };
     };
   };
 }
@@ -30,6 +38,7 @@ export default function PlayScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [reportData, setReportData] = useState<any[]>([]); // Added state for report data
   const router = useRouter();
 
   useEffect(() => {
@@ -81,6 +90,92 @@ export default function PlayScreen() {
     },
   };
 
+  const generatePDFReport = () => {
+    if (!user) return;
+
+    const doc = new jsPDF();
+
+    // Child Information
+    doc.setFontSize(16);
+    doc.text("Child Information", 10, 10);
+    doc.setFontSize(12);
+    doc.text(`Name: ${user.Name}`, 10, 20);
+    doc.text(`User ID: ${user.UserID}`, 10, 30);
+    doc.text(`Total Time Spent: 5 hrs 42 mins`, 10, 40); // Placeholder
+    doc.text(`Sessions Completed: 18`, 10, 50); // Placeholder
+
+    doc.text("Progress Overview", 10, 70);
+    doc.text("Levels Completed:", 10, 90);
+    doc.text("Beginner", 20, 100);
+    doc.text("Intermediate", 20, 120);
+    doc.text("Expert", 20, 130);
+    doc.text("Proficient", 20, 140);
+    doc.text("Total Tasks Attempted: 65", 10, 150);
+    doc.text("Tasks Successfully Completed: 52", 10, 160);
+    doc.text("Average Pronunciation Accuracy: 74%", 10, 170);
+
+    // Level-wise details (for beginner level as example)
+    const generateLevelReport = (
+      level: Level,
+      levelTitle: string,
+      levelY: number
+    ) => {
+      doc.text(`${levelTitle}`, 10, levelY);
+      const levelData = user.progress?.[level];
+      const tasks = levelData?.tasks || {};
+      let currentY = levelY + 10;
+
+      // Table headers
+      doc.text("Word", 10, currentY);
+      doc.text("Attempts", 60, currentY);
+      doc.text("First Accuracy", 100, currentY);
+      doc.text("Final Accuracy", 140, currentY);
+      doc.text("Status", 180, currentY);
+      currentY += 10;
+
+      Object.entries(tasks).forEach(([taskId, task]: any) => {
+        doc.text(task.word, 10, currentY);
+        doc.text(task.attempts.length.toString(), 60, currentY);
+        doc.text(`${task.attempts[0]?.accuracy || 0}%`, 100, currentY); // First accuracy
+        doc.text(
+          `${task.attempts[task.attempts.length - 1]?.accuracy || 0}%`,
+          140,
+          currentY
+        ); // Final accuracy
+        doc.text(
+          task.mastered
+            ? "✅ Mastered"
+            : task.attempts.length > 1
+            ? "⚠️ Improved"
+            : "❗Struggling",
+          180,
+          currentY
+        );
+        currentY += 10;
+      });
+    };
+
+    // Beginner Level
+    generateLevelReport("beginnerLevel", "✅ Beginner Level", 180);
+
+    // Intermediate Level
+    generateLevelReport("intermediateLevel", "🟡 Intermediate Level", 250);
+
+    // Insights from data
+    doc.text("📊 Insights From This Data", 10, 320);
+    doc.text("Frequently mispronounced sounds: /b/, /tʃ/, /th/", 10, 330);
+    doc.text(
+      'Words needing more focus: "Dog", "Can I go outside?", "The cat is sleeping"',
+      10,
+      340
+    );
+    doc.text("Average attempts per difficult word: 3.4", 10, 350);
+    doc.text("Child improves after average 2–3 repetitions", 10, 360);
+
+    // Save the PDF
+    doc.save("Speech_Therapy_Report.pdf");
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
@@ -97,6 +192,14 @@ export default function PlayScreen() {
           >
             <MenuIcon fontSize="large" />
           </button>
+          <div className="absolute top-24 left-8 text-xl">
+            <button
+              onClick={generatePDFReport}
+              className="bg-blue-500 text-white py-2 px-4 rounded-lg cursor-pointer"
+            >
+              Generate Report
+            </button>
+          </div>
 
           {dashboardVisible && (
             <div className="absolute right-0 mt-2 w-65 bg-white shadow-lg rounded-lg z-10 border border-none p-2">
@@ -119,23 +222,26 @@ export default function PlayScreen() {
                 }
 
                 return (
-                  <div
-                    key={level}
-                    className={`flex flex-col mb-3 p-2 rounded-lg ${
-                      isUnlocked
-                        ? "bg-orange-200 text-black-800"
-                        : "bg-gray-200 text-gray-500"
-                    }`}
-                  >
-                    <span className="capitalize">
-                      {level.replace("Level", "")} Level
-                    </span>
-                    <span className="text-sm tracking-wide">
-                      {isUnlocked
-                        ? `${levelData?.correctCount ?? 0} tasks completed`
-                        : "Locked"}
-                    </span>
-                  </div>
+                  <>
+                    {" "}
+                    <div
+                      key={level}
+                      className={`flex flex-col mb-3 p-2 rounded-lg ${
+                        isUnlocked
+                          ? "bg-orange-200 text-black-800"
+                          : "bg-gray-200 text-gray-500"
+                      }`}
+                    >
+                      <span className="capitalize">
+                        {level.replace("Level", "")} Level
+                      </span>
+                      <span className="text-sm tracking-wide">
+                        {isUnlocked
+                          ? `${levelData?.correctCount ?? 0} tasks completed`
+                          : "Locked"}
+                      </span>
+                    </div>
+                  </>
                 );
               })}
             </div>
@@ -149,6 +255,44 @@ export default function PlayScreen() {
           Logout
         </button>
       </div>
+
+      {/* Display Report Data */}
+      {reportData.length > 0 && (
+        <div className="mt-8 p-6 bg-white shadow-md rounded-lg w-[80%]">
+          <h2 className="text-2xl font-bold mb-4">Generated Report</h2>
+          {reportData.map((section) => (
+            <div key={section.level} className="mb-6">
+              <h3 className="text-xl font-semibold mb-2">
+                {section.level.replace("Level", "")} Level
+              </h3>
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2">Word</th>
+                    <th className="px-4 py-2">Attempts</th>
+                    <th className="px-4 py-2">Accuracy History</th>
+                    <th className="px-4 py-2">Mastered</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {section.tasks.map((task: any, idx: number) => (
+                    <tr key={idx} className="border-b">
+                      <td className="px-4 py-2">{task.word}</td>
+                      <td className="px-4 py-2">{task.attempts}</td>
+                      <td className="px-4 py-2">
+                        {task.accuracyHistory.join(" → ")}
+                      </td>
+                      <td className="px-4 py-2">
+                        {task.mastered ? "✅" : "❌"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Animated Buttons */}
       <div className="flex flex-col items-center space-y-4">
@@ -193,7 +337,7 @@ export default function PlayScreen() {
       </div>
       {showLogoutModal && (
         <div className="fixed inset-0 bg-white/10 backdrop-blur-md border border-white/30 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl p-6 w-[90%] max-w-md text-center space-y-4">
+          <div className="bg-[#f3c5a8] border-3 border-gray-900 rounded-xl shadow-xl p-6 w-[90%] max-w-md text-center space-y-4">
             <h2 className="text-xl font-bold">Confirm Logout</h2>
             <p className="text-gray-700">Are you sure you want to logout?</p>
             <div className="flex justify-center space-x-4">

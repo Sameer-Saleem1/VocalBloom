@@ -1,7 +1,7 @@
 // ✅ Step 1: Modify firebaseHelpers.ts to include level unlocking logic
 
 import { auth, db } from "../firebase/config";
-import { ref, get, set, update } from "firebase/database";
+import { ref, get, set, update, push } from "firebase/database";
 
 export const updateProgress = async (
   level:
@@ -9,10 +9,22 @@ export const updateProgress = async (
     | "intermediateLevel"
     | "proficientLevel"
     | "expertLevel",
-  newWord: string
+  newWord: string,
+  score: number
 ) => {
   const user = auth.currentUser;
   if (!user) return;
+  const baseRef = `Authentication/users/${user.uid}/progress/${level}`;
+
+  // 🔹 Step 1: Record the attempt
+  const attemptRef = ref(db, `${baseRef}/attempts/${newWord}`);
+  const attemptData = {
+    score,
+    timestamp: new Date().toISOString(),
+  };
+  await push(attemptRef, attemptData);
+
+  if (score < 65) return;
 
   const progressRef = ref(
     db,
@@ -26,7 +38,6 @@ export const updateProgress = async (
     correctWords = snapshot.val().correctWords || [];
   }
 
-  // Avoid duplicate entries
   if (!correctWords.includes(newWord)) {
     correctWords.push(newWord);
   }
@@ -36,10 +47,9 @@ export const updateProgress = async (
   await set(progressRef, {
     correctWords,
     correctCount,
-    isUnlocked: true, // Always keep current level unlocked after progress
+    isUnlocked: true,
   });
 
-  // Unlock next level if threshold is reached
   const thresholds: Record<string, number> = {
     beginnerLevel: 100,
     intermediateLevel: 50,

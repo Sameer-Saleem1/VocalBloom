@@ -11,6 +11,7 @@ import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
 import { grey } from "@mui/material/colors";
+import { storePronunciationAttempt } from "../libs/storePronunciationAttempt";
 
 interface Word {
   Category: string;
@@ -95,6 +96,7 @@ export default function Intermediate() {
   const [correctPronunciations, setCorrectPronunciations] = useState<number>(0);
   const [showAnimation, setShowAnimation] = useState(false);
   const [similarityScore, setSimilarityScore] = useState<number>(0);
+  const [incorrectAttempts, setIncorrectAttempts] = useState<number>(0);
 
   const router = useRouter();
 
@@ -121,6 +123,9 @@ export default function Intermediate() {
 
     loadWords();
   }, []);
+  const sanitizeFilename = (str: string) => {
+    return str.trim().replace(/[.#$[\]]/g, "");
+  };
 
   // const getDirectImageLink = (driveUrl?: string) => {
   //   const match = driveUrl?.match(/\/d\/(.*?)\//);
@@ -169,12 +174,8 @@ export default function Intermediate() {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
       const correctWord = currentWord?.Content.trim().toLowerCase() || "";
 
-      console.log("User said:", userSpeech);
-      console.log("Expected word:", correctWord);
       const similarity = phoneticSimilarity(userSpeech, correctWord);
       setSimilarityScore(similarity);
-
-      console.log("Similarity:", similarity);
 
       if (similarity >= 0.7) {
         setFeedback("Great job! Moving to the next word...");
@@ -182,7 +183,18 @@ export default function Intermediate() {
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
 
-        await updateProgress("intermediateLevel", correctWord);
+        await storePronunciationAttempt(
+          "intermediateLevel",
+          sanitizeFilename(correctWord),
+          true,
+          similarity
+        );
+        await updateProgress(
+          "intermediateLevel",
+          sanitizeFilename(correctWord),
+
+          similarity * 100
+        );
 
         setTimeout(() => {
           setFeedback("");
@@ -193,15 +205,31 @@ export default function Intermediate() {
           );
         }, 3000);
       } else {
+        setIncorrectAttempts((prevAttempts) => prevAttempts + 1);
         setFeedback(` Oops! You said "${userSpeech}". Try again.`);
+        await storePronunciationAttempt(
+          "intermediateLevel",
+          sanitizeFilename(correctWord),
+          false,
+          similarity
+        );
+        await updateProgress(
+          "intermediateLevel",
+          sanitizeFilename(correctWord),
+          similarity * 100
+        );
+        if (incorrectAttempts >= 4) {
+          setFeedback("Too many attempts. Moving to the next word.");
+          setCurrentIndex((prevIndex) =>
+            prevIndex + 1 < word.length ? prevIndex + 1 : 0
+          );
+          setIncorrectAttempts(0);
+          setSimilarityScore(0);
+        }
       }
     };
 
     recognition.start();
-  };
-
-  const sanitizeFilename = (word: string) => {
-    return word.trim().replace(/[^\w\s]|_/g, "");
   };
 
   const progress = correctPronunciations;

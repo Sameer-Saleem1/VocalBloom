@@ -10,6 +10,7 @@ import { grey } from "@mui/material/colors";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
 import animation from "../components/animation.json";
+import { storePronunciationAttempt } from "../libs/storePronunciationAttempt";
 
 interface Word {
   Category: string;
@@ -95,6 +96,7 @@ export default function Proficient() {
   const [showAnimation, setShowAnimation] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [similarityScore, setSimilarityScore] = useState<number>(0);
+  const [incorrectAttempts, setIncorrectAttempts] = useState<number>(0);
 
   const router = useRouter();
 
@@ -121,6 +123,9 @@ export default function Proficient() {
 
     loadWords();
   }, []);
+  const sanitizeFilename = (str: string) => {
+    return str.trim().replace(/[.#$[\]]/g, "");
+  };
 
   const currentWord = word[currentIndex] || null;
   const wordsArray = currentWord?.Content.split(" ") || [];
@@ -177,9 +182,6 @@ export default function Proficient() {
       const userSpeech = event.results[0][0].transcript.trim().toLowerCase();
       const correctSentence = currentWord?.Content.trim().toLowerCase() || "";
 
-      console.log("User said:", userSpeech);
-      console.log("Expected sentence:", correctSentence);
-
       const userWords = userSpeech.split(" ");
       const correctWords = correctSentence.split(" ");
       let correctCount = 0;
@@ -192,7 +194,7 @@ export default function Proficient() {
       });
 
       const accuracy = (correctCount / correctWords.length) * 100;
-      console.log("Sentence accuracy:", accuracy);
+
       setSimilarityScore(accuracy / 100);
       if (accuracy >= 55) {
         setFeedback("Great job! You're doing well, keep it up!");
@@ -200,7 +202,18 @@ export default function Proficient() {
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
 
-        await updateProgress("proficientLevel", correctSentence);
+        await storePronunciationAttempt(
+          "proficientLevel",
+          sanitizeFilename(correctSentence),
+          true,
+          similarityScore * 100
+        );
+
+        await updateProgress(
+          "proficientLevel",
+          sanitizeFilename(correctSentence),
+          similarityScore * 100
+        );
 
         setTimeout(() => {
           setFeedback("");
@@ -211,7 +224,27 @@ export default function Proficient() {
           );
         }, 3000);
       } else {
+        setIncorrectAttempts((prevAttempts) => prevAttempts + 1);
         setFeedback(`Oops! You said "${userSpeech}". Try again.`);
+        await storePronunciationAttempt(
+          "proficientLevel",
+          sanitizeFilename(correctSentence),
+          false,
+          similarityScore * 100
+        );
+        await updateProgress(
+          "proficientLevel",
+          sanitizeFilename(correctSentence),
+          similarityScore * 100
+        );
+        if (incorrectAttempts >= 4) {
+          setFeedback("Too many attempts. Moving to the next word.");
+          setCurrentIndex((prevIndex) =>
+            prevIndex + 1 < word.length ? prevIndex + 1 : 0
+          );
+          setIncorrectAttempts(0);
+          setSimilarityScore(0);
+        }
       }
     };
 
