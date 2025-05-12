@@ -31,7 +31,13 @@ interface PronunciationData {
 }
 
 export default function DashboardReport() {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<{
+    Name: string;
+    uid: string;
+    childAge: string;
+    Email: string;
+  } | null>(null);
+
   const [levelUnlocks, setLevelUnlocks] = useState<Record<Level, boolean>>({
     beginnerLevel: true,
     intermediateLevel: false,
@@ -65,10 +71,21 @@ export default function DashboardReport() {
       const userInfo = userSnap.val();
       setUserData({ ...userInfo, uid });
 
-      const unlocks: any = {};
-      const accuracies: any = {};
-      const easy: any = {};
-      const hard: any = {};
+      const unlocks: Record<Level, boolean> = {
+        beginnerLevel: true,
+        intermediateLevel: false,
+        proficientLevel: false,
+        expertLevel: false,
+      };
+      const accuracies: Record<Level, number> = {
+        beginnerLevel: 0,
+        intermediateLevel: 0,
+        proficientLevel: 0,
+        expertLevel: 0,
+      };
+
+      const easy: Record<string, PronunciationData> = {};
+      const hard: Record<string, PronunciationData> = {};
 
       for (const level of levels) {
         const progressRef = ref(
@@ -108,14 +125,8 @@ export default function DashboardReport() {
           }
         }
 
-        if (totalCount == 0) {
-          accuracies[level] = "Not Attempted";
-        } else {
-          accuracies[level] =
-            totalCount > 0
-              ? Math.round((totalSimilarity / totalCount) * 100)
-              : 0;
-        }
+        accuracies[level] =
+          totalCount > 0 ? Math.round((totalSimilarity / totalCount) * 100) : 0;
       }
 
       setLevelUnlocks(unlocks);

@@ -40,7 +40,6 @@ export default function PlayScreen() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [reportData, setReportData] = useState<any[]>([]); // Added state for report data
   const router = useRouter();
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (!currentUser) {
@@ -55,8 +54,9 @@ export default function PlayScreen() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [router]);
 
+  console.log(setReportData);
   const handleLogout = async () => {
     await signOut(auth);
     router.push("/login");
@@ -133,26 +133,36 @@ export default function PlayScreen() {
       doc.text("Status", 180, currentY);
       currentY += 10;
 
-      Object.entries(tasks).forEach(([taskId, task]: any) => {
-        doc.text(task.word, 10, currentY);
-        doc.text(task.attempts.length.toString(), 60, currentY);
-        doc.text(`${task.attempts[0]?.accuracy || 0}%`, 100, currentY); // First accuracy
-        doc.text(
-          `${task.attempts[task.attempts.length - 1]?.accuracy || 0}%`,
-          140,
-          currentY
-        ); // Final accuracy
-        doc.text(
-          task.mastered
-            ? "✅ Mastered"
-            : task.attempts.length > 1
-            ? "⚠️ Improved"
-            : "❗Struggling",
-          180,
-          currentY
-        );
-        currentY += 10;
-      });
+      Object.entries(tasks).forEach(
+        ([taskId, task]: [
+          string,
+          {
+            word: string;
+            attempts: { accuracy: number }[];
+            mastered: boolean;
+          }
+        ]) => {
+          console.log(taskId);
+          doc.text(task.word, 10, currentY);
+          doc.text(task.attempts.length.toString(), 60, currentY);
+          doc.text(`${task.attempts[0]?.accuracy || 0}%`, 100, currentY); // First accuracy
+          doc.text(
+            `${task.attempts[task.attempts.length - 1]?.accuracy || 0}%`,
+            140,
+            currentY
+          ); // Final accuracy
+          doc.text(
+            task.mastered
+              ? "✅ Mastered"
+              : task.attempts.length > 1
+              ? "⚠️ Improved"
+              : "❗Struggling",
+            180,
+            currentY
+          );
+          currentY += 10;
+        }
+      );
     };
 
     // Beginner Level
