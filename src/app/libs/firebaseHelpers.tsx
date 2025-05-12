@@ -1,7 +1,7 @@
 // ✅ Step 1: Modify firebaseHelpers.ts to include level unlocking logic
 
 import { auth, db } from "../firebase/config";
-import { ref, get, set, update, push } from "firebase/database";
+import { ref, get, update, push } from "firebase/database";
 
 export const updateProgress = async (
   level:
