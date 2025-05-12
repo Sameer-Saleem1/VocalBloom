@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+// import Image from "next/image";
 import { useEffect, useState } from "react";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
@@ -282,7 +282,7 @@ export default function Intermediate() {
                 </h1>
 
                 {/* Image */}
-                {currentWord.Content ? (
+                {/* {currentWord.Content ? (
                   <Image
                     src={`/DatasetImages/${
                       sanitizeFilename(currentWord?.Content) || ""
@@ -294,7 +294,7 @@ export default function Intermediate() {
                   />
                 ) : (
                   "not found"
-                )}
+                )} */}
               </div>
 
               {/* Buttons */}
