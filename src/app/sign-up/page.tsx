@@ -179,8 +179,8 @@ export default function Signup() {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <input
           type="text"
-          name="Child Name"
-          placeholder="Name"
+          name="Name"
+          placeholder="Child Name"
           onChange={handleChange}
           className="border p-2 m-2 w-60  rounded-lg"
         />
