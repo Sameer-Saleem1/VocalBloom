@@ -33,12 +33,23 @@ interface User {
     };
   };
 }
+type ReportTask = {
+  word: string;
+  attempts: number;
+  accuracyHistory: number[];
+  mastered: boolean;
+};
+
+type ReportSection = {
+  level: Level;
+  tasks: ReportTask[];
+};
 
 export default function PlayScreen() {
   const [user, setUser] = useState<User | null>(null);
   const [dashboardVisible, setDashboardVisible] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [reportData, setReportData] = useState<any[]>([]); // Added state for report data
+  const [reportData, setReportData] = useState<ReportSection[]>([]);
   const router = useRouter();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -285,7 +296,7 @@ export default function PlayScreen() {
                   </tr>
                 </thead>
                 <tbody>
-                  {section.tasks.map((task: any, idx: number) => (
+                  {section.tasks.map((task: ReportTask, idx: number) => (
                     <tr key={idx} className="border-b">
                       <td className="px-4 py-2">{task.word}</td>
                       <td className="px-4 py-2">{task.attempts}</td>
