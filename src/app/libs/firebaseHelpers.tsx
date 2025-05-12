@@ -44,7 +44,7 @@ export const updateProgress = async (
 
   const correctCount = correctWords.length;
 
-  await set(progressRef, {
+  await update(progressRef, {
     correctWords,
     correctCount,
     isUnlocked: true,
