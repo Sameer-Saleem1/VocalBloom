@@ -7,6 +7,7 @@ import { grey } from "@mui/material/colors";
 import { fetchWords } from "./fetchingExpertWords/fetchExpertWords";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { storePronunciationAttempt } from "../libs/storePronunciationAttempt";
 
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
@@ -96,6 +97,7 @@ export default function Expert() {
   const [showAnimation, setShowAnimation] = useState(false);
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [similarityScore, setSimilarityScore] = useState<number>(0);
+  const [incorrectAttempts, setIncorrectAttempts] = useState<number>(0);
 
   const router = useRouter();
 
@@ -122,7 +124,9 @@ export default function Expert() {
 
     loadWords();
   }, []);
-
+  const sanitizeFilename = (str: string) => {
+    return str.trim().replace(/[.#$[\]]/g, "");
+  };
   const currentWord = word[currentIndex] || null;
   const wordsArray = currentWord?.Content.split(" ") || [];
 
@@ -200,8 +204,17 @@ export default function Expert() {
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
-
-        await updateProgress("expertLevel", correctWord);
+        await storePronunciationAttempt(
+          "expertLevel",
+          sanitizeFilename(correctWord),
+          true,
+          similarityScore * 100
+        );
+        await updateProgress(
+          "expertLevel",
+          sanitizeFilename(correctWord),
+          similarityScore * 100
+        );
 
         setTimeout(() => {
           setFeedback("");
@@ -214,7 +227,25 @@ export default function Expert() {
       } else {
         setFeedback(` Oops! You said "${userSpeech}". Try again.`);
       }
-
+      await storePronunciationAttempt(
+        "expertLevel",
+        sanitizeFilename(correctWord),
+        true,
+        similarityScore * 100
+      );
+      await updateProgress(
+        "proficientLevel",
+        sanitizeFilename(correctWord),
+        similarityScore * 100
+      );
+      if (incorrectAttempts >= 4) {
+        setFeedback("Too many attempts. Moving to the next word.");
+        setCurrentIndex((prevIndex) =>
+          prevIndex + 1 < word.length ? prevIndex + 1 : 0
+        );
+        setIncorrectAttempts(0);
+        setSimilarityScore(0);
+      }
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         recognition.stop();
