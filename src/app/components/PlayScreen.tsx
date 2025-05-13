@@ -6,7 +6,6 @@ import { ref, get } from "firebase/database";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import MenuIcon from "@mui/icons-material/Menu";
-import { jsPDF } from "jspdf";
 
 type Level =
   | "beginnerLevel"

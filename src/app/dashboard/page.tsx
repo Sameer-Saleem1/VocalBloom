@@ -34,7 +34,7 @@ interface PronunciationData {
 export default function DashboardReport() {
   const [userData, setUserData] = useState<{
     Name: string;
-    FatherName: String;
+    FatherName: string;
     uid: string;
     childAge: string;
     Email: string;
