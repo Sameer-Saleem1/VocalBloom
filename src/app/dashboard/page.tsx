@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
 import { ref, get } from "firebase/database";
+import { useRouter } from "next/navigation";
 
 type Level =
   | "beginnerLevel"
@@ -33,6 +34,7 @@ interface PronunciationData {
 export default function DashboardReport() {
   const [userData, setUserData] = useState<{
     Name: string;
+    FatherName: String;
     uid: string;
     childAge: string;
     Email: string;
@@ -59,6 +61,8 @@ export default function DashboardReport() {
     Record<string, PronunciationData>
   >({});
   const [date, setDate] = useState<string>("");
+
+  const router = useRouter();
 
   useEffect(() => {
     const loadData = async () => {
@@ -140,34 +144,47 @@ export default function DashboardReport() {
   }, []);
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-2xl font-bold">Speech Therapy Progress Report</h1>
+    <div className="bg-[#f3c5a8] p-6 pl-10 space-y-8">
+      <div className=" items-center">
+        <button
+          onClick={() => router.push("./")}
+          className=" bg-[#f3c5a8] rounded-2xl border-3 text-lg border-gray-900 shadow-lg m-2 p-1 font-bold cursor-pointer tracking-[.05rem] hover:bg-orange-300 transition-colors duration-300"
+        >
+          Back to Home
+        </button>
+        <div className="flex justify-center">
+          <h1 className="text-3xl font-extrabold ">User Details</h1>
+        </div>
+      </div>
 
       {userData && (
-        <div className="space-y-1 text-gray-800">
-          <p>
-            <strong>User Name:</strong> {userData.Name}
+        <div className="space-y-1 text-gray-900 text-xl ">
+          <p className="mb-3">
+            <strong>Child Name:</strong> {userData.Name}
           </p>
-          <p>
-            <strong>User ID:</strong> {userData.uid}
+          <p className="mb-3">
+            <strong>Guardian Name:</strong> {userData.FatherName}
           </p>
-          <p>
+          <p className="mb-3">
             <strong>Child Age:</strong> {userData.childAge}
           </p>
-          <p>
+          <p className="mb-3">
             <strong>Email ID:</strong> {userData.Email}
           </p>
-          <p>
+          <p className="mb-3">
             <strong>Date of Report:</strong> {date}
           </p>
         </div>
       )}
 
       <div>
+        <div className="flex justify-center">
+          <h1 className="text-3xl font-extrabold">User Progress</h1>
+        </div>
         <h2 className="text-xl font-semibold mt-6">Levels</h2>
         <ul className="list-disc ml-6 mt-2">
           {levels.map((level) => (
-            <li key={level}>
+            <li key={level} className="ml-4 mb-3">
               {levelLabels[level]} —{" "}
               {levelUnlocks[level] ? "✅ Unlocked" : "🔒 Locked"}
             </li>
@@ -179,7 +196,7 @@ export default function DashboardReport() {
         <h2 className="text-xl font-semibold mt-6">Average Accuracy</h2>
         <ul className="list-disc ml-6 mt-2">
           {levels.map((level) => (
-            <li key={level}>
+            <li key={level} className="ml-4 mb-3">
               {levelLabels[level]}: {averageAccuracy[level] ?? 0}%
             </li>
           ))}
@@ -187,14 +204,15 @@ export default function DashboardReport() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mt-6">Words Easily Pronounced</h2>
+        <h2 className="text-xl font-semibold mt-6 mb-5"> Easily Pronounced</h2>
         {Object.keys(easyWords).length === 0 ? (
           <p className="text-gray-600 ml-4">No easy words recorded yet.</p>
         ) : (
-          <ul className="list-disc ml-6 mt-2">
+          <ul className="list-disc ml-6 mt-2 ">
             {Object.entries(easyWords).map(([word, data]) => (
-              <li key={word}>
-                <strong>{word}</strong> — Attempts: {data.attempts}, Accuracy:{" "}
+              <li key={word} className="ml-4 mb-3">
+                <strong>{word}</strong> — Attempts: {data.attempts}
+                <strong>,</strong> Accuracy <strong>:</strong>{" "}
                 {data.similarityHistory
                   .map((sim) => `${(sim * 100).toFixed(2)}%`)
                   .join(", ")}
@@ -205,14 +223,17 @@ export default function DashboardReport() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mt-6">Words with Difficulty</h2>
+        <h2 className="text-xl font-semibold mt-6 mb-5">
+          Difficulty Pronunciation
+        </h2>
         {Object.keys(difficultWords).length === 0 ? (
           <p className="text-gray-600 ml-4">No difficult words found.</p>
         ) : (
           <ul className="list-disc ml-6 mt-2">
             {Object.entries(difficultWords).map(([word, data]) => (
-              <li key={word}>
-                <strong>{word}</strong> — Attempts: {data.attempts}, Accuracy:{" "}
+              <li key={word} className="ml-4 mb-3">
+                <strong>{word}</strong> — Attempts: {data.attempts}{" "}
+                <strong>,</strong> Accuracy <strong>:</strong>{" "}
                 {data.similarityHistory
                   .map((sim) => `${(sim * 100).toFixed(2)}%`)
                   .join(", ")}

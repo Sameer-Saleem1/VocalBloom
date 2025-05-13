@@ -206,13 +206,13 @@ export default function Proficient() {
           "proficientLevel",
           sanitizeFilename(correctSentence),
           true,
-          accuracy
+          similarityScore
         );
 
         await updateProgress(
           "proficientLevel",
           sanitizeFilename(correctSentence),
-          accuracy
+          similarityScore
         );
 
         setTimeout(() => {
@@ -230,12 +230,12 @@ export default function Proficient() {
           "proficientLevel",
           sanitizeFilename(correctSentence),
           false,
-          accuracy
+          similarityScore
         );
         await updateProgress(
           "proficientLevel",
           sanitizeFilename(correctSentence),
-          accuracy
+          similarityScore
         );
         if (incorrectAttempts >= 4) {
           setFeedback("Too many attempts. Moving to the next word.");
