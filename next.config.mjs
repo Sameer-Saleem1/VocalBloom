@@ -1,37 +1,28 @@
 import {
   PHASE_DEVELOPMENT_SERVER,
   PHASE_PRODUCTION_BUILD,
-} from "next/constants.js";
+} from "next/constants";
 import withPWAInit from "@ducanh2912/next-pwa";
 
-const withPWA = withPWAInit({
-  dest: "public",
-  register: true,
-  skipWaiting: true,
-});
-
-module.exports = withPWA({
-  reactStrictMode: true,
-  images: {
-    domains: ["your-firebase-image-source.com"], // if you use Firebase Storage
-  },
-});
 /** @type {import("next").NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["drive.google.com"],
+    domains: ["your-firebase-image-source.com", "drive.google.com"], // Add all domains you need
   },
 };
 
-const nextConfigFunction = async (phase) => {
+// PWA configuration
+const withPWA = withPWAInit({
+  dest: "public", // The location of your service worker
+  register: true,
+  skipWaiting: true,
+});
+
+export default (phase) => {
   if (phase === PHASE_DEVELOPMENT_SERVER || phase === PHASE_PRODUCTION_BUILD) {
-    const withPWA = (await import("@ducanh2912/next-pwa")).default({
-      dest: "public",
-    });
+    // Use PWA config only in production and development builds
     return withPWA(nextConfig);
   }
-  return nextConfig;
+  return nextConfig; // Default config for other phases (e.g., preview)
 };
-
-export default nextConfigFunction;
