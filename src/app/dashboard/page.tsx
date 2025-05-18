@@ -1,5 +1,5 @@
 "use client";
-
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
 import { ref, get } from "firebase/database";
@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AverageAccuracyChart from "./components/AverageAccuracyChart";
 import EasyVsDifficultChart from "./components/EasyvsDifficult";
 import WordPronunciationTrendChart from "./components/WordPronunciationTrendChart";
+import logo from "@/app/icon1.png";
 
 type Level =
   | "beginnerLevel"
@@ -159,13 +160,19 @@ export default function DashboardReport() {
 
   return (
     <div className="bg-[#f3c5a8] p-6 pl-10 space-y-8">
-      <div className=" items-center">
-        <button
-          onClick={() => router.push("./")}
-          className=" bg-[#f3c5a8] rounded-2xl border-3 text-lg border-gray-900 shadow-lg m-2 p-1 font-bold cursor-pointer tracking-[.05rem] hover:bg-orange-300 transition-colors duration-300"
-        >
-          Back to Home
-        </button>
+      <div className=" items-center ">
+        <div className="flex justify-between items-center">
+          <div>
+            {" "}
+            <Image src={logo} alt="Logo" width={75} />
+          </div>
+          <button
+            onClick={() => router.push("./")}
+            className=" bg-[#f3c5a8] rounded-2xl border-3 text-lg border-gray-900 shadow-lg m-6 p-1 font-bold cursor-pointer tracking-[.05rem] hover:bg-orange-300 transition-colors duration-300"
+          >
+            Back to Home
+          </button>{" "}
+        </div>
         <div className="flex justify-center">
           <h1 className="text-3xl font-extrabold ">User Details</h1>
         </div>
