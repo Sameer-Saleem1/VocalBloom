@@ -25,6 +25,7 @@ export default function AverageAccuracyChart({ data }: Props) {
     name: levelLabels[level],
     accuracy,
   }));
+  console.log("Chart data:", chartData);
 
   return (
     <div className="mt-6">

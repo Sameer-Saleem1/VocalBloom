@@ -198,54 +198,51 @@ export default function Expert() {
 
       console.log("Similarity:", similarity);
       setSimilarityScore(similarity);
-      // Process result after a pause or when speech is finished
-      if (similarity >= 0.4) {
+      if (similarity >= 0.5) {
         setFeedback(" Great job! Moving to the next word...");
         setShowAnimation(true);
         const newCorrect = correctPronunciations + 1;
         setCorrectPronunciations(newCorrect);
+
         await storePronunciationAttempt(
           "expertLevel",
           sanitizeFilename(correctWord),
           true,
-          similarityScore * 100
+          similarity
         );
         await updateProgress(
           "expertLevel",
           sanitizeFilename(correctWord),
-          similarityScore * 100
+          similarity
         );
 
         setTimeout(() => {
           setFeedback("");
           setShowAnimation(false);
-          setSimilarityScore(0);
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
           );
         }, 5000);
       } else {
-        setFeedback(` Oops! You said "${userSpeech}". Try again.`);
-      }
-      await storePronunciationAttempt(
-        "expertLevel",
-        sanitizeFilename(correctWord),
-        true,
-        similarityScore * 100
-      );
-      await updateProgress(
-        "proficientLevel",
-        sanitizeFilename(correctWord),
-        similarityScore * 100
-      );
-      if (incorrectAttempts >= 4) {
-        setFeedback("Too many attempts. Moving to the next word.");
-        setCurrentIndex((prevIndex) =>
-          prevIndex + 1 < word.length ? prevIndex + 1 : 0
+        setFeedback(`Oops! You said "${userSpeech}". Try again.`);
+        setIncorrectAttempts((prev) => prev + 1);
+
+        await storePronunciationAttempt(
+          "expertLevel",
+          sanitizeFilename(correctWord),
+          false,
+          similarity
         );
-        setIncorrectAttempts(0);
-        setSimilarityScore(0);
+
+        if (incorrectAttempts >= 4) {
+          setFeedback("Too many attempts. Moving to the next word.");
+          setCurrentIndex((prevIndex) =>
+            prevIndex + 1 < word.length ? prevIndex + 1 : 0
+          );
+          setIncorrectAttempts(0);
+        }
       }
+
       clearTimeout(timeout);
       timeout = setTimeout(() => {
         recognition.stop();

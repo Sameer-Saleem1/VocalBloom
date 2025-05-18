@@ -194,8 +194,8 @@ export default function Proficient() {
       });
 
       const accuracy = (correctCount / correctWords.length) * 100;
-
-      setSimilarityScore(accuracy / 100);
+      const accuracyRatio = accuracy / 100;
+      setSimilarityScore(accuracyRatio);
       if (accuracy >= 55) {
         setFeedback("Great job! You're doing well, keep it up!");
         setShowAnimation(true);
@@ -206,13 +206,13 @@ export default function Proficient() {
           "proficientLevel",
           sanitizeFilename(correctSentence),
           true,
-          similarityScore
+          accuracyRatio
         );
 
         await updateProgress(
           "proficientLevel",
           sanitizeFilename(correctSentence),
-          similarityScore
+          accuracyRatio
         );
 
         setTimeout(() => {
@@ -230,12 +230,12 @@ export default function Proficient() {
           "proficientLevel",
           sanitizeFilename(correctSentence),
           false,
-          similarityScore
+          accuracyRatio
         );
         await updateProgress(
           "proficientLevel",
           sanitizeFilename(correctSentence),
-          similarityScore
+          accuracyRatio
         );
         if (incorrectAttempts >= 4) {
           setFeedback("Too many attempts. Moving to the next word.");
