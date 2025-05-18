@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import aeroplane from "../../../public/images/aeroplane.jpg";
-import MicIcon from "@mui/icons-material/Mic";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import { grey } from "@mui/material/colors";
 import { fetchWords } from "./fetchingExpertWords/fetchExpertWords";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
@@ -316,7 +316,7 @@ export default function Expert() {
                   className="bg-[#f3c5a8] shadow-[#b39887] p-2 rounded-full shadow-lg cursor-pointer"
                 >
                   <span>
-                    <MicIcon fontSize="large" sx={{ color: grey[800] }} />
+                    <VolumeUpIcon fontSize="large" sx={{ color: grey[800] }} />
                   </span>
                 </div>
                 <div

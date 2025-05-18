@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { auth, db } from "../firebase/config";
 import { ref, get } from "firebase/database";
 import { useRouter } from "next/navigation";
+import AverageAccuracyChart from "./components/AverageAccuracyChart";
+import EasyVsDifficultChart from "./components/EasyvsDifficult";
+import WordPronunciationTrendChart from "./components/WordPronunciationTrendChart";
 
 type Level =
   | "beginnerLevel"
@@ -142,6 +145,17 @@ export default function DashboardReport() {
 
     loadData();
   }, []);
+  const wordAccuracy: Record<string, number> = {};
+
+  [easyWords, difficultWords].forEach((wordSet) => {
+    Object.entries(wordSet).forEach(([word, data]) => {
+      const avgSimilarity =
+        data.similarityHistory.reduce((sum, val) => sum + val, 0) /
+        data.similarityHistory.length;
+
+      wordAccuracy[word] = Math.round(avgSimilarity * 100);
+    });
+  });
 
   return (
     <div className="bg-[#f3c5a8] p-6 pl-10 space-y-8">
@@ -193,14 +207,17 @@ export default function DashboardReport() {
       </div>
 
       <div>
-        <h2 className="text-xl font-semibold mt-6">Average Accuracy</h2>
-        <ul className="list-disc ml-6 mt-2">
-          {levels.map((level) => (
-            <li key={level} className="ml-4 mb-3">
-              {levelLabels[level]}: {averageAccuracy[level] ?? 0}%
-            </li>
-          ))}
-        </ul>
+        <AverageAccuracyChart data={averageAccuracy} />
+      </div>
+      <div>
+        {" "}
+        <EasyVsDifficultChart
+          easyCount={Object.keys(easyWords).length}
+          difficultCount={Object.keys(difficultWords).length}
+        />
+      </div>
+      <div>
+        <WordPronunciationTrendChart wordAccuracies={wordAccuracy} />
       </div>
 
       <div>
@@ -211,11 +228,16 @@ export default function DashboardReport() {
           <ul className="list-disc ml-6 mt-2 ">
             {Object.entries(easyWords).map(([word, data]) => (
               <li key={word} className="ml-4 mb-3">
-                <strong>{word}</strong> — Attempts: {data.attempts}
-                <strong>,</strong> Accuracy <strong>:</strong>{" "}
-                {data.similarityHistory
-                  .map((sim) => `${(sim * 100).toFixed(2)}%`)
-                  .join(", ")}
+                <strong>{word}</strong> — Attempts:{" "}
+                <strong>{data.attempts}</strong>
+                <strong className="mr-6">,</strong>{" "}
+                <span className="ml-6">Accuracy</span> <strong>:</strong>{" "}
+                <strong>
+                  {" "}
+                  {data.similarityHistory
+                    .map((sim) => `${(sim * 100).toFixed(2)}%`)
+                    .join(", ")}
+                </strong>
               </li>
             ))}
           </ul>
@@ -233,7 +255,7 @@ export default function DashboardReport() {
             {Object.entries(difficultWords).map(([word, data]) => (
               <li key={word} className="ml-4 mb-3">
                 <strong>{word}</strong> — Attempts: {data.attempts}{" "}
-                <strong>,</strong> Accuracy <strong>:</strong>{" "}
+                <strong className="mr-6">,</strong> Accuracy <strong>:</strong>{" "}
                 {data.similarityHistory
                   .map((sim) => `${(sim * 100).toFixed(2)}%`)
                   .join(", ")}

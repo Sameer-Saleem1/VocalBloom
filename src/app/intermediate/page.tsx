@@ -5,7 +5,7 @@ import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { useRouter } from "next/navigation";
 import { fetchWords } from "./fetchIntermediateWords/fetchIntermediateWords";
 import sky from "../../../public/images/greenery.jpg";
-import MicIcon from "@mui/icons-material/Mic";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Lottie from "lottie-react";
 import ReactHowler from "react-howler";
@@ -304,7 +304,7 @@ export default function Intermediate() {
                   className="bg-[#f3c5a8] p-2 rounded-full shadow-lg cursor-pointer"
                 >
                   <span>
-                    <MicIcon fontSize="large" sx={{ color: grey[800] }} />
+                    <VolumeUpIcon fontSize="large" sx={{ color: grey[800] }} />
                   </span>
                 </div>
                 <div

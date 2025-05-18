@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { updateProgress, fetchProgress } from "../libs/firebaseHelpers";
 import { storePronunciationAttempt } from "../libs/storePronunciationAttempt";
 import { fetchWords } from "./fetchingWords/fetchWords";
-import MicIcon from "@mui/icons-material/Mic";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import { grey } from "@mui/material/colors";
 import sky from "../../../public/images/sky.jpg";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
@@ -307,7 +307,7 @@ export default function LearningCard() {
                   className="bg-[#f3c5a8] p-2 rounded-full shadow-lg cursor-pointer"
                 >
                   <span>
-                    <MicIcon fontSize="large" sx={{ color: grey[800] }} />
+                    <VolumeUpIcon fontSize="large" sx={{ color: grey[800] }} />
                   </span>
                 </div>
                 <div
