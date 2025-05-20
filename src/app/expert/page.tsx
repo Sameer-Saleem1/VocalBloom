@@ -219,6 +219,7 @@ export default function Expert() {
         setTimeout(() => {
           setFeedback("");
           setShowAnimation(false);
+          setSimilarityScore(0);
           setCurrentIndex((prevIndex) =>
             prevIndex + 1 < word.length ? prevIndex + 1 : 0
           );

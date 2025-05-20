@@ -123,7 +123,7 @@ export default function PlayScreen() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-b from-[#fdecc9] to-[#fde5cf] text-gray-900">
       {/* Greeting */}
-      <div className="absolute top-8 left-8 text-3xl font-bold">
+      <div className="absolute top-8 left-8 text-base lg:text-3xl font-bold sm:text-lg md:text-xl sm:mt-5">
         Hi, {user ? user.Name : ""}
       </div>
 

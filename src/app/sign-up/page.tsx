@@ -3,7 +3,11 @@ import LoginBG from "../../../public/images/loginBG.svg";
 import { useState } from "react";
 import { auth, db } from "../firebase/config";
 import InfoIcon from "@mui/icons-material/Info";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  signOut,
+} from "firebase/auth";
 import { update, ref, set } from "firebase/database";
 import { useRouter } from "next/navigation";
 
@@ -80,6 +84,8 @@ export default function Signup() {
       );
       const user = userCredential.user;
 
+      await sendEmailVerification(user);
+
       await set(ref(db, `Authentication/users/${user.uid}`), {
         Name: userData.Name,
         FatherName: userData.FatherName,
@@ -96,8 +102,14 @@ export default function Signup() {
           expertLevel: 0,
         },
       });
+      alert(
+        "✅ Registration successful! A verification email has been sent to your email address. Please verify your email before logging in."
+      );
 
-      router.push("/");
+      // Immediately sign out the user until they verify
+      await signOut(auth);
+
+      router.push("/login");
     } catch (error: unknown) {
       console.error("Signup Error:", error);
       let errorMessage = "⚠️ Something went wrong while signing up.";

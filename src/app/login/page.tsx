@@ -38,7 +38,21 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      await signInWithEmailAndPassword(auth, userData.Email, userData.password);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        userData.Email,
+        userData.password
+      );
+      const user = userCredential.user;
+
+      if (!user.emailVerified) {
+        alert("⚠️ Please verify your email before logging in.");
+        await auth.signOut();
+        return;
+      }
+
+      // Redirect only if email is verified
+      router.push("/");
     } catch (error) {
       console.error(error);
       alert("Invalid credentials. Please try again.");
